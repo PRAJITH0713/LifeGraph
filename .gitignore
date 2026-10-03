@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Environment secrets
+.env
+
+# Local database and runtime files
+backend/instance/
+*.sqlite
+*.sqlite3
+*.db
+
+# Uploads (retain the directory marker)
+uploads/*
+!uploads/.gitkeep
+
+# Test and editor artifacts
+.pytest_cache/
+.coverage
+.vscode/

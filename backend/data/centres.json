@@ -1,0 +1,12 @@
+{
+  "data_status": "DEMO ONLY - fictional centre; do not use for navigation",
+  "region": "Coimbatore, Tamil Nadu",
+  "centres": [
+    {
+      "id": "demo-centre-001",
+      "name": "DEMO Centre (not a real service location)",
+      "latitude": 11.0168,
+      "longitude": 76.9558
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+"""Map provider abstraction placeholder; no geocoding is performed."""

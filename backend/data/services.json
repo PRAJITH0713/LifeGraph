@@ -1,0 +1,11 @@
+{
+  "data_status": "DEMO ONLY - not verified; contains no government requirements",
+  "region": "Coimbatore, Tamil Nadu",
+  "services": [
+    {
+      "id": "demo-service-001",
+      "name": "Example Citizen Service",
+      "description": "Placeholder record for frontend and API development only."
+    }
+  ]
+}

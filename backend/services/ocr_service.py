@@ -1,0 +1,1 @@
+"""OCR integration placeholder; no document extraction is performed."""

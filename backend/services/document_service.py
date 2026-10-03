@@ -1,0 +1,1 @@
+"""Document handling placeholder; uploads are not accepted yet."""

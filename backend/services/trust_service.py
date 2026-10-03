@@ -1,0 +1,1 @@
+"""Optional document trust-check placeholder; no verification is performed."""

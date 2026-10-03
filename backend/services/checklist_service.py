@@ -1,0 +1,1 @@
+"""Checklist generation placeholder; no requirements are defined."""

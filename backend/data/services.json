@@ -1,11 +1,24 @@
 {
-  "data_status": "DEMO ONLY - not verified; contains no government requirements",
-  "region": "Coimbatore, Tamil Nadu",
+  "data_status": "DEMO catalogue metadata; official proof requirements have not been verified",
+  "region": "Tamil Nadu",
   "services": [
     {
-      "id": "demo-service-001",
-      "name": "Example Citizen Service",
-      "description": "Placeholder record for frontend and API development only."
+      "id": "tn-residence-certificate",
+      "name": "Residence Certificate",
+      "purpose": "DEMO description: associated with residence-related applications; confirm the certificate's scope with the issuing authority.",
+      "requirements": [],
+      "source_url": "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+      "verification_status": "needs_verification",
+      "last_verified": null
+    },
+    {
+      "id": "tn-income-certificate",
+      "name": "Income Certificate",
+      "purpose": "DEMO description: associated with income-related applications; confirm the certificate's scope with the issuing authority.",
+      "requirements": [],
+      "source_url": "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+      "verification_status": "needs_verification",
+      "last_verified": null
     }
   ]
 }

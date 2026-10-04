@@ -4,84 +4,86 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7f8f4">
-  <title>Dashboard | LifeGraph</title>
+  <title data-i18n="dashboard.title">Dashboard | LifeGraph</title>
   <link rel="stylesheet" href="/static/css/dashboard.css">
+  <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
 </head>
 <body>
   <header class="dashboard-header">
-    <a class="brand" href="/" aria-label="LifeGraph home">
+    <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome">
       <img class="brand-logo" data-brand-logo src="/static/assets/lifegraph-logo.png" alt="" width="34" height="34">
       <span>LifeGraph</span>
     </a>
-    <nav class="main-nav" aria-label="Main navigation">
-      <a href="/dashboard" aria-current="page">Dashboard</a>
-      <a href="/service">Services</a>
-      <a href="/checklist">Checklist</a>
-      <a href="/map">Centres</a>
-      <a href="#your-documents">My Documents</a>
+    <nav class="main-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation">
+      <a href="/dashboard" aria-current="page" data-i18n="common.dashboard">Dashboard</a>
+      <a href="/service" data-i18n="common.services">Services</a>
+      <a href="/checklist" data-i18n="common.checklist">Checklist</a>
+      <a href="/map" data-i18n="common.centres">Centres</a>
+      <a href="#your-documents" data-i18n="common.myDocuments">My Documents</a>
     </nav>
     <div class="header-tools">
-      <span class="location-label"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>Coimbatore, TN</span>
+      <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
+      <span class="location-label"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg><span data-i18n="dashboard.location">Coimbatore, TN</span></span>
       <span class="api-status" data-api-status>Checking API</span>
-      <span class="avatar" aria-label="User profile, PB">PB</span>
+      <span class="avatar" aria-label="User profile, PB" data-i18n-aria="dashboard.profile">PB</span>
     </div>
   </header>
 
   <main class="dashboard-shell">
     <section class="hero" id="about" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span>A SMARTER WAY TO ACCESS CITIZEN SERVICES</p>
-        <h1 id="hero-title">Complete your service journey without the <em>guesswork.</em></h1>
-        <p class="hero-description">Tell LifeGraph what you need to do. We'll help you understand what to carry, where to go, and what to do next.</p>
-        <p class="requirements-note">Government requirements are not connected yet.</p>
-        <div class="hero-shortcuts" aria-label="Get started">
+        <p class="eyebrow"><span></span><span class="eyebrow-copy" data-i18n="dashboard.homeLabel">A SMARTER WAY TO ACCESS CITIZEN SERVICES</span></p>
+        <h1 id="hero-title"><span data-i18n="dashboard.heroTitle">Complete your service journey without the</span> <em data-i18n="dashboard.heroEmphasis">guesswork.</em></h1>
+        <p class="hero-description" data-i18n="dashboard.heroDescription">Tell LifeGraph what you need to do. We'll help you understand what to carry, where to go, and what to do next.</p>
+        <p class="requirements-note" data-i18n="dashboard.requirementsNotice">Government requirements are not connected yet.</p>
+        <div class="hero-shortcuts" aria-label="Get started" data-i18n-aria="dashboard.getStarted">
           <a href="/service" class="hero-shortcut shortcut-green">
             <span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
-            <span><strong>Start a Service</strong><small>Choose from government services</small></span>
+            <span><strong data-i18n="dashboard.startService">Start a Service</strong><small data-i18n="dashboard.startServiceHint">Choose from government services</small></span>
             <span class="shortcut-arrow" aria-hidden="true">↗</span>
           </a>
           <a href="#your-documents" class="hero-shortcut shortcut-blue">
             <span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"/></svg></span>
-            <span><strong>Upload a Document</strong><small>Check what action it may require</small></span>
+            <span><strong data-i18n="dashboard.uploadDocument">Upload a Document</strong><small data-i18n="dashboard.uploadDocumentHint">Check what action it may require</small></span>
             <span class="shortcut-arrow" aria-hidden="true">↗</span>
           </a>
           <a href="/service" class="hero-shortcut shortcut-orange">
             <span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4M8.5 11h5M11 8.5v5"/></svg></span>
-            <span><strong>Browse Services</strong><small>Explore available services</small></span>
+            <span><strong data-i18n="dashboard.browseServices">Browse Services</strong><small data-i18n="dashboard.browseServicesHint">Explore available services</small></span>
             <span class="shortcut-arrow" aria-hidden="true">↗</span>
           </a>
         </div>
       </div>
-      <div class="journey-art" aria-label="Illustration of a guided service journey">
+      <div class="journey-art" aria-label="Illustration of a guided service journey" data-i18n-aria="dashboard.artLabel">
         <img src="/static/assets/journey-illustration.svg" alt="">
-        <span class="art-document" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h4"/></svg><strong>Document</strong></span>
-        <span class="art-label label-know"><i>01</i>Know what to do</span>
-        <span class="art-label label-prepare"><i>02</i>Prepare your documents</span>
-        <span class="art-label label-centre"><i>03</i>Find the right centre</span>
-        <span class="art-label label-complete"><i>04</i>Complete your journey</span>
-        <span class="art-caption">ILLUSTRATION ONLY · NOT A MAP</span>
+        <span class="art-document" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h4"/></svg><strong data-i18n="dashboard.artDocument">Document</strong></span>
+        <span class="art-label label-know"><i>01</i><span data-i18n="dashboard.artKnow">Know what to do</span></span>
+        <span class="art-label label-prepare"><i>02</i><span data-i18n="dashboard.artPrepare">Prepare your documents</span></span>
+        <span class="art-label label-centre"><i>03</i><span data-i18n="dashboard.artCentre">Find the right centre</span></span>
+        <span class="art-label label-complete"><i>04</i><span data-i18n="dashboard.artComplete">Complete your journey</span></span>
+        <span class="art-caption" data-i18n="dashboard.artCaption">ILLUSTRATION ONLY · NOT A MAP</span>
       </div>
     </section>
 
     <section class="quick-actions" aria-labelledby="quick-actions-title">
       <div class="section-heading compact-heading">
-        <div><p class="section-kicker">PICK UP WHERE YOU NEED</p><h2 id="quick-actions-title">Quick actions</h2></div>
+        <div><p class="section-kicker" data-i18n="dashboard.pickUp">PICK UP WHERE YOU NEED</p><h2 id="quick-actions-title" data-i18n="dashboard.quickActions">Quick actions</h2></div>
       </div>
       <div class="action-grid">
         <a class="action-card action-upload" href="#your-documents">
           <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"/></svg></span>
-          <span class="action-copy"><strong>Upload a Document</strong><small>Check what action it may require</small></span>
+          <span class="action-copy"><strong data-i18n="dashboard.uploadDocument">Upload a Document</strong><small data-i18n="dashboard.uploadDocumentHint">Check what action it may require</small></span>
           <span class="action-go" aria-hidden="true">↗</span>
         </a>
         <a class="action-card action-service" href="/service">
           <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM9 9h6M9 12h6M9 15h3"/></svg></span>
-          <span class="action-copy"><strong>Choose a Service</strong><small>See requirements and prepare</small></span>
+          <span class="action-copy"><strong data-i18n="dashboard.chooseService">Choose a Service</strong><small data-i18n="dashboard.chooseServiceHint">See requirements and prepare</small></span>
           <span class="action-go" aria-hidden="true">↗</span>
         </a>
         <a class="action-card action-centre" href="/map">
           <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.3"/></svg></span>
-          <span class="action-copy"><strong>Find a Service Centre</strong><small>Discover relevant centres near you</small></span>
+          <span class="action-copy"><strong data-i18n="dashboard.findCentre">Find a Service Centre</strong><small data-i18n="dashboard.findCentreHint">Discover relevant centres near you</small></span>
           <span class="action-go" aria-hidden="true">↗</span>
         </a>
       </div>
@@ -90,98 +92,99 @@
     <div class="dashboard-grid">
       <section class="panel journey-panel" aria-labelledby="service-journey-title">
         <div class="panel-heading">
-          <div><p class="section-kicker">PICK UP WHERE YOU LEFT OFF</p><h2 id="service-journey-title">Your Service Journey</h2></div>
-          <span class="demo-pill">DEMO DATA</span>
+          <div><p class="section-kicker" data-i18n="dashboard.resumeJourney">PICK UP WHERE YOU LEFT OFF</p><h2 id="service-journey-title" data-i18n="dashboard.yourJourney">Your Service Journey</h2></div>
+          <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
         </div>
         <div class="service-summary">
           <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20h14M7 20V9l5-4 5 4v11M10 12h4M10 15h4"/></svg></span>
-          <span class="service-name"><strong>Residence Certificate</strong><small>Coimbatore, Tamil Nadu</small></span>
-          <span class="in-progress"><i></i>In Progress</span>
+          <span class="service-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.coimbatore">Coimbatore, Tamil Nadu</small><small class="translation-note" data-tamil-only data-i18n="dashboard.serviceTranslationNote">Tamil service-name translations are not verified.</small></span>
+          <span class="in-progress"><i></i><span data-i18n="dashboard.inProgress">In Progress</span></span>
         </div>
         <ol class="progress-steps">
-          <li class="step-done"><span class="step-node">✓</span><strong>Service identified</strong></li>
-          <li class="step-current"><span class="step-node">2</span><strong>Documents prepared</strong></li>
-          <li><span class="step-node">3</span><strong>Centre selected</strong></li>
-          <li><span class="step-node">4</span><strong>Ready to visit</strong></li>
+          <li class="step-done"><span class="step-node">✓</span><strong data-i18n="dashboard.serviceIdentified">Service identified</strong></li>
+          <li class="step-current"><span class="step-node">2</span><strong data-i18n="dashboard.documentsPrepared">Documents prepared</strong></li>
+          <li><span class="step-node">3</span><strong data-i18n="dashboard.centreSelected">Centre selected</strong></li>
+          <li><span class="step-node">4</span><strong data-i18n="dashboard.readyToVisit">Ready to visit</strong></li>
         </ol>
-        <a class="panel-link" href="/checklist">Continue journey <span aria-hidden="true">→</span></a>
+        <a class="panel-link" href="/checklist"><span data-i18n="dashboard.continueJourney">Continue journey</span> <span aria-hidden="true">→</span></a>
       </section>
 
       <section class="panel documents-panel" id="your-documents" aria-labelledby="documents-title">
         <div class="panel-heading">
-          <div><p class="section-kicker">DOCUMENT OVERVIEW</p><h2 id="documents-title">Your Documents</h2></div>
-          <span class="demo-pill">DEMO DATA</span>
+          <div><p class="section-kicker" data-i18n="dashboard.documentOverview">DOCUMENT OVERVIEW</p><h2 id="documents-title" data-i18n="dashboard.yourDocuments">Your Documents</h2></div>
+          <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
         </div>
         <ul class="document-list">
-          <li><span class="file-icon file-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong>Aadhaar Card</strong><small>Demo record</small></span><span class="document-state state-available">Available</span></li>
-          <li><span class="file-icon file-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong>Address Proof</strong><small>Demo record</small></span><span class="document-state state-available">Available</span></li>
-          <li><span class="file-icon file-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong>Residence Certificate</strong><small>Demo record</small></span><span class="document-state state-action">Action required</span></li>
+          <li><span class="file-icon file-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.aadhaar">Aadhaar Card</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
+          <li><span class="file-icon file-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.addressProof">Address Proof</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
+          <li><span class="file-icon file-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-action" data-i18n="dashboard.actionRequired">Action required</span></li>
         </ul>
-        <p class="privacy-note">This is demo data. No actual documents are stored.</p>
+        <p class="privacy-note" data-i18n="dashboard.noDocumentsStored">This is demo data. No actual documents are stored.</p>
       </section>
 
       <section class="leave-panel" aria-labelledby="before-leave-title">
         <div class="leave-heading">
-          <div><p class="section-kicker">A QUICK CHECK BEFORE YOU GO</p><h2 id="before-leave-title">Before You Leave</h2></div>
+          <div><p class="section-kicker" data-i18n="dashboard.quickCheck">A QUICK CHECK BEFORE YOU GO</p><h2 id="before-leave-title" data-i18n="dashboard.beforeLeave">Before You Leave</h2></div>
           <span class="leave-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>
         </div>
         <ul class="leave-list">
-          <li><span class="check-mark">✓</span>Required documents checked</li>
-          <li><span class="check-mark">✓</span>Service centre selected</li>
-          <li><span class="warning-mark">!</span>Verify original/copy requirement</li>
-          <li><span class="warning-mark">!</span>Check service availability</li>
+          <li><span class="check-mark">✓</span><span data-i18n="dashboard.requiredDocumentsChecked">Required documents checked</span></li>
+          <li><span class="check-mark">✓</span><span data-i18n="dashboard.centreChosen">Service centre selected</span></li>
+          <li><span class="warning-mark">!</span><span data-i18n="dashboard.verifyCopies">Verify original/copy requirement</span></li>
+          <li><span class="warning-mark">!</span><span data-i18n="dashboard.checkAvailability">Check service availability</span></li>
         </ul>
-        <p class="demo-disclaimer">Demo checklist only. Confirm details with the official service provider.</p>
-        <a class="leave-button" href="/checklist">Review Checklist <span aria-hidden="true">→</span></a>
+        <p class="demo-disclaimer" data-i18n="dashboard.demoChecklist">Demo checklist only. Confirm details with the official service provider.</p>
+        <a class="leave-button" href="/checklist"><span data-i18n="dashboard.reviewChecklist">Review Checklist</span> <span aria-hidden="true">→</span></a>
       </section>
 
       <section class="panel privacy-panel" id="privacy" aria-labelledby="privacy-title">
-        <div class="privacy-topline"><span class="privacy-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s8-4 8-10V5l-8-3-8 3v6c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="demo-pill">PRIVACY BY DESIGN</span></div>
-        <h2 id="privacy-title">Your Privacy Matters</h2>
-        <p class="privacy-lede">Your documents stay under your control.</p>
+        <div class="privacy-topline"><span class="privacy-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s8-4 8-10V5l-8-3-8 3v6c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="demo-pill" data-i18n="dashboard.privacyDesign">PRIVACY BY DESIGN</span></div>
+        <h2 id="privacy-title" data-i18n="dashboard.privacyTitle">Your Privacy Matters</h2>
+        <p class="privacy-lede" data-i18n="dashboard.privacyLead">Your documents stay under your control.</p>
         <ul class="privacy-list">
-          <li><span>✓</span>Documents are processed only for the current task</li>
-          <li><span>✓</span>Original files are not stored by default</li>
-          <li><span>✓</span>Uploading documents is optional</li>
-          <li><span>✓</span>You can use LifeGraph without uploading documents</li>
+          <li><span>✓</span><span data-i18n="dashboard.documentsCurrentTask">Documents are processed only for the current task</span></li>
+          <li><span>✓</span><span data-i18n="dashboard.originalsNotStored">Original files are not stored by default</span></li>
+          <li><span>✓</span><span data-i18n="dashboard.uploadOptional">Uploading documents is optional</span></li>
+          <li><span>✓</span><span data-i18n="dashboard.noUploadNeeded">You can use LifeGraph without uploading documents</span></li>
         </ul>
-        <p class="privacy-qualification">Document upload and processing are not implemented in this demo.</p>
+        <p class="privacy-qualification" data-i18n="dashboard.uploadNotImplemented">Document upload and processing are not implemented in this demo.</p>
       </section>
     </div>
 
     <section class="centres-section" aria-labelledby="centres-title">
       <div class="section-heading centres-heading">
-        <div><p class="section-kicker">PLACES THAT MAY HELP</p><h2 id="centres-title">Nearby Service Centres</h2></div>
-        <span class="demo-pill">DEMO DATA</span>
+        <div><p class="section-kicker" data-i18n="dashboard.placesMayHelp">PLACES THAT MAY HELP</p><h2 id="centres-title" data-i18n="dashboard.nearbyCentres">Nearby Service Centres</h2></div>
+        <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
       </div>
-      <p class="centres-disclaimer">Illustrative records only. Locations, service listings, labels and availability are not verified and may not represent real centres.</p>
+      <p class="centres-disclaimer" data-i18n="dashboard.centreDisclaimer">Illustrative records only. Locations, service listings, labels and availability are not verified and may not represent real centres.</p>
+      <p class="translation-note dashboard-translation-note" data-tamil-only data-i18n="dashboard.serviceTranslationNote">Tamil service-name translations are not verified.</p>
       <div class="centre-grid">
         <article class="centre-card">
-          <div class="centre-card-top"><span class="centre-type">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>1.8 km</span></div>
-          <h3>Coimbatore e-Sevai Centre</h3><p class="centre-service">Residence Certificate</p>
-          <div class="experience-indicator" aria-label="Demo experience data, not rated"><span>Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong>Not rated</strong></div>
-          <span class="centre-status"><i></i>Demo status: Verified</span>
+          <div class="centre-card-top"><span class="centre-type" data-i18n="dashboard.centreType">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>1.8 km</span></div>
+          <h3 data-i18n="dashboard.centreCoimbatore">Coimbatore e-Sevai Centre</h3><p class="centre-service" data-i18n="dashboard.residenceCertificate">Residence Certificate</p>
+          <div class="experience-indicator" aria-label="Demo experience data, not rated" data-i18n-aria="dashboard.experienceNotRated"><span data-i18n="dashboard.experience">Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong data-i18n="dashboard.notRated">Not rated</strong></div>
+          <span class="centre-status"><i></i><span data-i18n="dashboard.demoVerified">Demo status: Verified</span></span>
         </article>
         <article class="centre-card">
-          <div class="centre-card-top"><span class="centre-type">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>3.1 km</span></div>
-          <h3>Saibaba Colony e-Sevai</h3><p class="centre-service">Income Certificate</p>
-          <div class="experience-indicator" aria-label="Demo experience data, not rated"><span>Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong>Not rated</strong></div>
-          <span class="centre-status"><i></i>Demo status: Verified</span>
+          <div class="centre-card-top"><span class="centre-type" data-i18n="dashboard.centreType">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>3.1 km</span></div>
+          <h3 data-i18n="dashboard.centreSaibaba">Saibaba Colony e-Sevai</h3><p class="centre-service" data-i18n="services.income.name">Income Certificate</p>
+          <div class="experience-indicator" aria-label="Demo experience data, not rated" data-i18n-aria="dashboard.experienceNotRated"><span data-i18n="dashboard.experience">Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong data-i18n="dashboard.notRated">Not rated</strong></div>
+          <span class="centre-status"><i></i><span data-i18n="dashboard.demoVerified">Demo status: Verified</span></span>
         </article>
         <article class="centre-card">
-          <div class="centre-card-top"><span class="centre-type">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>4.5 km</span></div>
-          <h3>Gandhipuram e-Sevai</h3><p class="centre-service">Community Certificate</p>
-          <div class="experience-indicator" aria-label="Demo experience data, not rated"><span>Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong>Not rated</strong></div>
-          <span class="centre-status status-limited"><i></i>Demo status: Limited Services</span>
+          <div class="centre-card-top"><span class="centre-type" data-i18n="dashboard.centreType">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>4.5 km</span></div>
+          <h3 data-i18n="dashboard.centreGandhipuram">Gandhipuram e-Sevai</h3><p class="centre-service" data-i18n="dashboard.communityCertificate">Community Certificate</p>
+          <div class="experience-indicator" aria-label="Demo experience data, not rated" data-i18n-aria="dashboard.experienceNotRated"><span data-i18n="dashboard.experience">Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong data-i18n="dashboard.notRated">Not rated</strong></div>
+          <span class="centre-status status-limited"><i></i><span data-i18n="dashboard.demoLimited">Demo status: Limited Services</span></span>
         </article>
       </div>
     </section>
   </main>
 
   <footer class="dashboard-footer" id="terms">
-    <a class="footer-brand" href="/" id="terms"><img class="brand-logo" data-brand-logo src="/static/assets/lifegraph-logo.png" alt="" width="28" height="28"><span><strong>LifeGraph</strong><small>Your Guide to Citizen Services</small></span></a>
-    <nav aria-label="Footer navigation"><a href="#about">About</a><a href="#privacy">Privacy</a><a href="#terms">Terms</a><a href="/checklist">Help</a></nav>
-    <span class="footer-note">Demo interface · Coimbatore, TN</span>
+    <a class="footer-brand" href="/" id="terms"><img class="brand-logo" data-brand-logo src="/static/assets/lifegraph-logo.png" alt="" width="28" height="28"><span><strong>LifeGraph</strong><small data-i18n="dashboard.footerTagline">Your Guide to Citizen Services</small></span></a>
+    <nav aria-label="Footer navigation" data-i18n-aria="common.footerNavigation"><a href="#about" data-i18n="common.footerAbout">About</a><a href="#privacy" data-i18n="common.footerPrivacy">Privacy</a><a href="#terms" data-i18n="common.footerTerms">Terms</a><a href="/checklist" data-i18n="common.footerHelp">Help</a></nav>
+    <span class="footer-note" data-i18n="dashboard.footerNote">Demo interface · Coimbatore, TN</span>
   </footer>
 </body>
 </html>

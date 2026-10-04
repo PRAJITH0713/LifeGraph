@@ -4,6 +4,7 @@ from flask import Flask, abort, jsonify, send_from_directory
 
 from config import Config
 from database.db import initialize_database
+from routes.services import services_api
 
 try:
     from flask_cors import CORS
@@ -20,6 +21,7 @@ def create_app():
     app.config.from_object(Config)
 
     initialize_database(app.config["DATABASE_PATH"])
+    app.register_blueprint(services_api)
     if CORS is not None:
         CORS(app, resources={r"/api/*": {"origins": "*"}})
 

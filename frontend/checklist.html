@@ -3,22 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Checklist | LifeGraph</title>
+  <title data-i18n="checklist.title">Checklist | LifeGraph</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
+  <script src="/static/js/checklist.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="LifeGraph home"><span class="brand-mark">L</span>LifeGraph</a>
-    <nav class="site-nav" aria-label="Main navigation"><a href="/dashboard">Dashboard</a><a href="/service">Services</a><a href="/checklist">Checklist</a><a href="/map">Centres</a></nav>
+    <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome"><span class="brand-mark">L</span>LifeGraph</a>
+    <nav class="site-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation"><a href="/dashboard" data-i18n="common.dashboard">Dashboard</a><a href="/service" data-i18n="common.services">Services</a><a href="/checklist" data-i18n="common.checklist">Checklist</a><a href="/map" data-i18n="common.centres">Centres</a></nav>
+    <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
     <span class="api-status" data-api-status>Checking API</span>
   </header>
-  <main class="page-main">
-    <p class="eyebrow">WORKSPACE / PREPARATION</p>
-    <h1 class="page-title">Before you leave</h1>
-    <p class="lede">A final checklist will be built from verified service data.</p>
-    <section class="placeholder-panel"><span class="demo-label">NOT YET AVAILABLE</span><h2>No checklist generated</h2><p>LifeGraph does not yet generate document or proof requirements. Nothing on this page should be treated as official guidance.</p><a class="text-link" href="/service">Explore the service area <span aria-hidden="true">→</span></a></section>
+  <main class="page-main catalogue-main" data-checklist-app>
+    <p class="eyebrow" data-i18n="checklist.eyebrow">WORKSPACE / PREPARATION</p>
+    <h1 class="page-title" data-i18n="checklist.heading">Before you leave</h1>
+    <p class="lede" data-i18n="checklist.lede">Review source status and track your private planning reminders.</p>
+    <section class="service-detail checklist-page-detail" data-service-detail aria-live="polite">
+      <p class="empty-state" data-i18n="checklist.loading">Loading your selected service…</p>
+    </section>
+    <p class="checklist-back-link"><a class="text-link" href="/service"><span data-i18n="checklist.browseServices">Browse services</span> <span aria-hidden="true">→</span></a></p>
   </main>
-  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> Starter workspace</span><span>Demo build · No official service data</span></footer>
+  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="checklist.footerPreparation">Preparation</span></span><span data-i18n="checklist.footerStorage">Reminders stored in this browser only</span></footer>
 </body>
 </html>

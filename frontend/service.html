@@ -3,22 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Services | LifeGraph</title>
+  <title data-i18n="service.title">Services | LifeGraph</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
+  <script src="/static/js/checklist.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="LifeGraph home"><span class="brand-mark">L</span>LifeGraph</a>
-    <nav class="site-nav" aria-label="Main navigation"><a href="/dashboard">Dashboard</a><a href="/service">Services</a><a href="/checklist">Checklist</a><a href="/map">Centres</a></nav>
+    <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome"><span class="brand-mark">L</span>LifeGraph</a>
+    <nav class="site-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation"><a href="/dashboard" data-i18n="common.dashboard">Dashboard</a><a href="/service" data-i18n="common.services">Services</a><a href="/checklist" data-i18n="common.checklist">Checklist</a><a href="/map" data-i18n="common.centres">Centres</a></nav>
+    <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
     <span class="api-status" data-api-status>Checking API</span>
   </header>
-  <main class="page-main">
-    <p class="eyebrow">WORKSPACE / SERVICE AREA</p>
-    <h1 class="page-title">Explore services</h1>
-    <p class="lede">A service catalogue will appear here when verified data is ready.</p>
-    <section class="placeholder-panel"><span class="demo-label">NO OFFICIAL REQUIREMENTS</span><h2>Catalogue not connected</h2><p>The included JSON record is demo-only. It contains no government requirements and must not be used to prepare an application.</p><a class="text-link" href="/">Back to start <span aria-hidden="true">→</span></a></section>
+  <main class="page-main catalogue-main" data-service-app>
+    <p class="eyebrow" data-i18n="service.eyebrow">WORKSPACE / SERVICE AREA</p>
+    <h1 class="page-title" data-i18n="service.heading">Explore services</h1>
+    <p class="lede" data-i18n="service.lede">Browse Tamil Nadu services and keep a private checklist of planning reminders.</p>
+    <label class="catalogue-search-label" for="service-search" data-i18n="service.searchLabel">Search services</label>
+    <input class="catalogue-search" id="service-search" type="search" maxlength="100" placeholder="Search by service name" data-i18n-placeholder="service.searchPlaceholder" autocomplete="off" data-service-search>
+    <p class="catalogue-feedback" data-catalogue-feedback role="status" aria-live="polite"></p>
+    <div class="service-layout">
+      <section class="service-results" aria-labelledby="service-results-title">
+        <h2 id="service-results-title"><span data-i18n="service.servicesHeading">Services</span> <span data-service-count></span></h2>
+        <div data-service-list></div>
+      </section>
+      <section class="service-detail" data-service-detail aria-live="polite">
+        <p class="empty-state" data-i18n="service.selectPrompt">Select a service to see its details.</p>
+      </section>
+    </div>
   </main>
-  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> Starter workspace</span><span>Demo build · No official service data</span></footer>
+  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="service.workspaceFooter">Service workspace</span></span><span data-i18n="service.footerDisclaimer">Catalogue metadata DEMO · Proof requirements unverified</span></footer>
 </body>
 </html>

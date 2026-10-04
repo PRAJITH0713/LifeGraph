@@ -4,50 +4,52 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f7f2">
-  <title>LifeGraph | Start here</title>
+  <title data-i18n="index.title">LifeGraph | Start here</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="LifeGraph home"><span class="brand-mark">L</span>LifeGraph</a>
-    <nav class="site-nav" aria-label="Main navigation">
-      <a href="/dashboard">Dashboard</a>
-      <a href="/service">Services</a>
-      <a href="/checklist">Checklist</a>
-      <a href="/map">Centres</a>
+    <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome"><span class="brand-mark">L</span>LifeGraph</a>
+    <nav class="site-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation">
+      <a href="/dashboard" data-i18n="common.dashboard">Dashboard</a>
+      <a href="/service" data-i18n="common.services">Services</a>
+      <a href="/checklist" data-i18n="common.checklist">Checklist</a>
+      <a href="/map" data-i18n="common.centres">Centres</a>
     </nav>
+    <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
     <span class="api-status" data-api-status>Checking API</span>
   </header>
   <main>
     <section class="home-grid">
       <div class="home-copy">
-        <p class="eyebrow"><span class="status-dot"></span> A clearer way to get started</p>
-        <h1>One guided path through public services.</h1>
-        <p class="lede">LifeGraph is a starting point for organizing a service journey, from choosing a service to preparing for a visit.</p>
+        <p class="eyebrow"><span class="status-dot"></span><span data-i18n="index.eyebrow">A clearer way to get started</span></p>
+        <h1 data-i18n="index.heading">One guided path through public services.</h1>
+        <p class="lede" data-i18n="index.description">LifeGraph is a starting point for organizing a service journey, from choosing a service to preparing for a visit.</p>
         <div class="home-actions">
-          <a class="button button-primary" href="/dashboard">Open dashboard <span aria-hidden="true">→</span></a>
-          <a class="text-link" href="/service">Browse service area</a>
+          <a class="button button-primary" href="/dashboard"><span data-i18n="index.openDashboard">Open dashboard</span><span aria-hidden="true">→</span></a>
+          <a class="text-link" href="/service" data-i18n="index.browseServices">Browse service area</a>
         </div>
-        <p class="demo-note">Starter build · Demo records only · No official requirements included</p>
+        <p class="demo-note" data-i18n="index.disclaimer">Starter build · Demo records only · No official requirements included</p>
       </div>
-      <aside class="journey-panel" aria-label="Service journey steps">
-        <div class="panel-heading"><span>YOUR JOURNEY</span><span class="panel-index">01 / 03</span></div>
+      <aside class="journey-panel" aria-label="Service journey steps" data-i18n-aria="index.journeyLabel">
+        <div class="panel-heading"><span data-i18n="index.journeyTitle">YOUR JOURNEY</span><span class="panel-index">01 / 03</span></div>
         <ol class="journey-list">
-          <li class="journey-step is-current"><span class="step-number">01</span><span><strong>Choose a service</strong><small>Start with a service or document</small></span><span class="step-arrow">↗</span></li>
-          <li class="journey-step"><span class="step-number">02</span><span><strong>Prepare to go</strong><small>Review your checklist</small></span><span class="step-arrow">↗</span></li>
-          <li class="journey-step"><span class="step-number">03</span><span><strong>Find a centre</strong><small>Plan the next step</small></span><span class="step-arrow">↗</span></li>
+          <li class="journey-step is-current"><span class="step-number">01</span><span><strong data-i18n="index.chooseService">Choose a service</strong><small data-i18n="index.chooseServiceHint">Start with a service or document</small></span><span class="step-arrow">↗</span></li>
+          <li class="journey-step"><span class="step-number">02</span><span><strong data-i18n="index.prepare">Prepare to go</strong><small data-i18n="index.prepareHint">Review your checklist</small></span><span class="step-arrow">↗</span></li>
+          <li class="journey-step"><span class="step-number">03</span><span><strong data-i18n="index.findCentre">Find a centre</strong><small data-i18n="index.findCentreHint">Plan the next step</small></span><span class="step-arrow">↗</span></li>
         </ol>
-        <div class="panel-footer"><span>COIMBATORE, TAMIL NADU</span><span class="demo-label">DEMO</span></div>
+        <div class="panel-footer"><span data-i18n="index.region">COIMBATORE, TAMIL NADU</span><span class="demo-label" data-i18n="common.demo">DEMO DATA</span></div>
       </aside>
     </section>
-    <section class="quick-links" aria-label="Workspace pages">
-      <a href="/dashboard"><span class="quick-index">A</span><span><strong>Dashboard</strong><small>Journey overview</small></span><span class="quick-arrow">↗</span></a>
-      <a href="/service"><span class="quick-index">B</span><span><strong>Services</strong><small>Explore the service area</small></span><span class="quick-arrow">↗</span></a>
-      <a href="/checklist"><span class="quick-index">C</span><span><strong>Checklist</strong><small>Prepare for a visit</small></span><span class="quick-arrow">↗</span></a>
-      <a href="/map"><span class="quick-index">D</span><span><strong>Centres</strong><small>Centre finder placeholder</small></span><span class="quick-arrow">↗</span></a>
+    <section class="quick-links" aria-label="Workspace pages" data-i18n-aria="index.workspacePages">
+      <a href="/dashboard"><span class="quick-index">A</span><span><strong data-i18n="common.dashboard">Dashboard</strong><small data-i18n="index.dashboardHint">Journey overview</small></span><span class="quick-arrow">↗</span></a>
+      <a href="/service"><span class="quick-index">B</span><span><strong data-i18n="common.services">Services</strong><small data-i18n="index.servicesHint">Explore the service area</small></span><span class="quick-arrow">↗</span></a>
+      <a href="/checklist"><span class="quick-index">C</span><span><strong data-i18n="common.checklist">Checklist</strong><small data-i18n="index.checklistHint">Prepare for a visit</small></span><span class="quick-arrow">↗</span></a>
+      <a href="/map"><span class="quick-index">D</span><span><strong data-i18n="common.centres">Centres</strong><small data-i18n="index.centresHint">Centre finder placeholder</small></span><span class="quick-arrow">↗</span></a>
     </section>
   </main>
-  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> Starter workspace</span><span>Service information is not yet verified or provided here.</span></footer>
+  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="index.footerWorkspace">Starter workspace</span></span><span data-i18n="index.footerDisclaimer">Service information is not yet verified or provided here.</span></footer>
 </body>
 </html>

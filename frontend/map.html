@@ -3,22 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Centres | LifeGraph</title>
+  <title data-i18n="map.title">Centres | LifeGraph</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="LifeGraph home"><span class="brand-mark">L</span>LifeGraph</a>
-    <nav class="site-nav" aria-label="Main navigation"><a href="/dashboard">Dashboard</a><a href="/service">Services</a><a href="/checklist">Checklist</a><a href="/map">Centres</a></nav>
+    <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome"><span class="brand-mark">L</span>LifeGraph</a>
+    <nav class="site-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation"><a href="/dashboard" data-i18n="common.dashboard">Dashboard</a><a href="/service" data-i18n="common.services">Services</a><a href="/checklist" data-i18n="common.checklist">Checklist</a><a href="/map" data-i18n="common.centres">Centres</a></nav>
+    <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
     <span class="api-status" data-api-status>Checking API</span>
   </header>
   <main class="page-main">
-    <p class="eyebrow">WORKSPACE / CENTRE FINDER</p>
-    <h1 class="page-title">Find a service centre</h1>
-    <p class="lede">Centre search and mapping are not connected yet.</p>
-    <section class="placeholder-panel"><span class="demo-label">DEMO LOCATION ONLY</span><h2>Map not available</h2><p>The sample centre in the data file is fictional and must not be used for navigation. No map or routing provider is connected.</p><a class="text-link" href="/">Back to start <span aria-hidden="true">→</span></a></section>
+    <p class="eyebrow" data-i18n="map.eyebrow">WORKSPACE / CENTRE FINDER</p>
+    <h1 class="page-title" data-i18n="map.heading">Find a service centre</h1>
+    <p class="lede" data-i18n="map.lede">Centre search and mapping are not connected yet.</p>
+    <section class="placeholder-panel"><span class="demo-label" data-i18n="map.demoLocation">DEMO LOCATION ONLY</span><h2 data-i18n="map.unavailable">Map not available</h2><p data-i18n="map.disclaimer">The sample centre in the data file is fictional and must not be used for navigation. No map or routing provider is connected.</p><a class="text-link" href="/"><span data-i18n="map.backStart">Back to start</span> <span aria-hidden="true">→</span></a></section>
   </main>
-  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> Starter workspace</span><span>Demo build · No official service data</span></footer>
+  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="map.footerWorkspace">Starter workspace</span></span><span data-i18n="map.footerDemo">Demo build · No official service data</span></footer>
 </body>
 </html>

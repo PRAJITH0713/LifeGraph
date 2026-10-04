@@ -1,0 +1,45 @@
+"""Queries and maps service catalogue records stored in SQLite."""
+
+import json
+import sqlite3
+from contextlib import closing
+
+
+def _connect(database_path):
+    connection = sqlite3.connect(database_path)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def _service_from_row(row):
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "purpose": row["purpose"],
+        "requirements": json.loads(row["requirements_json"]),
+        "source_url": row["source_url"],
+        "verification_status": row["verification_status"],
+        "last_verified": row["last_verified"],
+        "is_demo": bool(row["is_demo"]),
+    }
+
+
+def list_services(database_path, query=""):
+    with closing(_connect(database_path)) as connection:
+        rows = connection.execute(
+            """
+            SELECT * FROM services
+            WHERE name LIKE ? OR purpose LIKE ?
+            ORDER BY name COLLATE NOCASE
+            """,
+            (f"%{query}%", f"%{query}%"),
+        ).fetchall()
+    return [_service_from_row(row) for row in rows]
+
+
+def get_service(database_path, service_id):
+    with closing(_connect(database_path)) as connection:
+        row = connection.execute(
+            "SELECT * FROM services WHERE id = ?", (service_id,)
+        ).fetchone()
+    return _service_from_row(row) if row is not None else None

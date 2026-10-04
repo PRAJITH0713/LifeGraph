@@ -43,6 +43,16 @@ python app.py
 
 The server starts at `http://127.0.0.1:5000`. SQLite is initialized automatically at `backend/instance/lifegraph.db` the first time the app loads.
 
+## Services and checklists
+
+Open `/service` to search the initial Residence Certificate and Income Certificate catalogue. The entries are DEMO metadata; official proof requirements are empty and marked as needing verification. The linked Tamil Nadu e-Sevai directory is a starting point, not proof that any requirement has been checked. The checklist page tracks only general DEMO planning reminders in this browser's local storage; it does not upload or store personal documents.
+
+Catalogue endpoints are `GET /api/services`, `GET /api/services/<service_id>`, and `GET /api/services/<service_id>/checklist`. Search uses the optional `q` parameter and accepts up to 100 characters.
+
+## Language support
+
+The interface defaults to English and can be switched to Tamil from the page header. The selection is stored in this browser and follows navigation and refreshes. Tamil service-name and description text is marked as unverified demo translation; official proof requirements remain unmodified and are shown in their source language until a translation is verified.
+
 ## Test the health endpoint
 
 Open `http://127.0.0.1:5000/api/health` in a browser, or run this in PowerShell:

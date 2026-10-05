@@ -1,6 +1,7 @@
 """Focused tests for the initial service catalogue API."""
 
 import os
+import re
 import sqlite3
 import tempfile
 import unittest
@@ -250,6 +251,23 @@ class ServiceCatalogueTests(unittest.TestCase):
         checklist_page = self.client.get("/checklist")
         self.assertEqual(service_page.status_code, 200)
         self.assertIn(b"data-service-app", service_page.data)
+        self.assertEqual(checklist_page.status_code, 302)
+        signup_page = self.client.get("/signup")
+        token = re.search(
+            r'name="csrf_token" value="([^"]+)"',
+            signup_page.get_data(as_text=True),
+        ).group(1)
+        self.client.post(
+            "/signup",
+            data={
+                "csrf_token": token,
+                "full_name": "Checklist User",
+                "email": "checklist@example.com",
+                "password": "correct horse battery staple",
+                "confirm_password": "correct horse battery staple",
+            },
+        )
+        checklist_page = self.client.get("/checklist")
         self.assertEqual(checklist_page.status_code, 200)
         self.assertIn(b"data-checklist-app", checklist_page.data)
         service_page.close()

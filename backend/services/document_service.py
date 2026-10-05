@@ -19,9 +19,11 @@ class DocumentValidationError(ValueError):
 
 
 def store_document(uploaded_file: FileStorage, upload_directory: str | Path, max_size: int):
-    filename = Path((uploaded_file.filename or "").replace("\\", "/")).name
+    filename = Path((uploaded_file.filename or "").replace("\\", "/")).name.strip()
     if not filename:
         raise DocumentValidationError("Choose a file with a valid filename.")
+    if len(filename) > 255 or any(ord(character) < 32 for character in filename):
+        raise DocumentValidationError("Choose a filename with 255 characters or fewer.")
 
     extension = Path(filename).suffix.lower()
     signatures = ALLOWED_SIGNATURES.get(extension)
@@ -41,7 +43,16 @@ def store_document(uploaded_file: FileStorage, upload_directory: str | Path, max
     destination = Path(upload_directory)
     destination.mkdir(parents=True, exist_ok=True)
     stored_name = f"{uuid4().hex}{extension}"
-    with (destination / stored_name).open("xb") as stored_file:
-        stored_file.write(content)
+    destination_file = destination / stored_name
+    try:
+        with destination_file.open("xb") as stored_file:
+            stored_file.write(content)
+    except OSError:
+        destination_file.unlink(missing_ok=True)
+        raise
 
-    return {"filename": filename, "size": len(content)}
+    return {
+        "filename": filename,
+        "stored_filename": stored_name,
+        "size": len(content),
+    }

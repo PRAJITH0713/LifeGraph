@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7f8f4">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title data-i18n="dashboard.title">Dashboard | LifeGraph</title>
   <link rel="stylesheet" href="/static/css/dashboard.css">
   <script src="/static/js/locales.js" defer></script>
@@ -27,7 +28,11 @@
       <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
       <span class="location-label"><span data-i18n="dashboard.location">Demo location · not set</span></span>
       <span class="api-status" data-api-status>Checking API</span>
-      <span class="avatar" aria-label="User profile, PB" data-i18n-aria="dashboard.profile">PB</span>
+      <span class="account-name">{{ current_user.full_name }}</span>
+      <form class="logout-form" action="/logout" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" data-i18n="auth.logout">Log out</button>
+      </form>
     </div>
   </header>
 
@@ -93,7 +98,7 @@
       <section class="panel journey-panel" aria-labelledby="service-journey-title">
         <div class="panel-heading">
           <div><p class="section-kicker" data-i18n="dashboard.resumeJourney">PICK UP WHERE YOU LEFT OFF</p><h2 id="service-journey-title" data-i18n="dashboard.yourJourney">Your Service Journey</h2></div>
-          <span class="demo-pill" data-i18n="dashboard.documentDataStatus">DEMO + UPLOADED</span>
+          <span class="demo-pill" data-i18n="dashboard.uploaded">YOUR FILES</span>
         </div>
         <div class="service-summary">
           <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20h14M7 20V9l5-4 5 4v11M10 12h4M10 15h4"/></svg></span>
@@ -115,11 +120,9 @@
           <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
         </div>
         <ul class="document-list" data-document-list>
-          <li><span class="file-icon file-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.aadhaar">Aadhaar Card</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
-          <li><span class="file-icon file-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.addressProof">Address Proof</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
-          <li><span class="file-icon file-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-action" data-i18n="dashboard.actionRequired">Action required</span></li>
+          <li class="empty-document-state" data-i18n="dashboard.noPrivateDocuments">No documents uploaded to this account yet.</li>
         </ul>
-        <p class="privacy-note" data-i18n="dashboard.noDocumentsStored">Existing entries are demos. Uploaded files appear in this list.</p>
+        <p class="privacy-note" data-i18n="dashboard.privateDocumentsOnly">Only files uploaded to your account appear here. Demo catalogue records are separate.</p>
         <input class="visually-hidden" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" data-document-upload-input aria-describedby="document-upload-status">
         <p class="upload-guidance" data-i18n="dashboard.uploadGuidance">PDF, PNG, JPG, or JPEG · Up to 10 MB</p>
         <p class="upload-status" id="document-upload-status" data-document-upload-status role="status" aria-live="polite" data-i18n="dashboard.uploadIdle">No document selected.</p>

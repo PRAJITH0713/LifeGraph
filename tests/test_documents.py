@@ -2,10 +2,12 @@
 
 import io
 import os
+import re
 import tempfile
 import unittest
 
 from app import create_app
+from database.db import initialize_database
 from werkzeug.datastructures import FileStorage
 from services.document_service import DocumentValidationError, store_document
 
@@ -15,12 +17,31 @@ class DocumentUploadTests(unittest.TestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.app = create_app()
         self.upload_directory = os.path.join(self.temp_dir.name, "uploads")
+        database_path = os.path.join(self.temp_dir.name, "test.db")
         self.app.config.update(
             TESTING=True,
+            DATABASE_PATH=database_path,
             UPLOAD_DIRECTORY=self.upload_directory,
+            WTF_CSRF_ENABLED=False,
         )
+        initialize_database(database_path)
         self.client = self.app.test_client()
         self.max_upload_size = self.app.config["MAX_UPLOAD_SIZE_BYTES"]
+        signup = self.client.get("/signup")
+        token = re.search(
+            r'name="csrf_token" value="([^"]+)"',
+            signup.get_data(as_text=True),
+        ).group(1)
+        self.client.post(
+            "/signup",
+            data={
+                "csrf_token": token,
+                "full_name": "Document Owner",
+                "email": "documents@example.com",
+                "password": "long secure test password",
+                "confirm_password": "long secure test password",
+            },
+        )
 
     def tearDown(self):
         self.temp_dir.cleanup()

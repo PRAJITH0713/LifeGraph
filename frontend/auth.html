@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>LifeGraph | Account</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/locales.js" defer></script>
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header auth-header">
+    <a class="brand" href="/"><span class="brand-mark">L</span>LifeGraph</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="/service" data-i18n="common.services">Services</a>
+      <a href="/login" data-i18n="auth.loginLink">Log in</a>
+      <a href="/signup" data-i18n="auth.signupLink">Create account</a>
+    </nav>
+    <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
+  </header>
+  <main class="auth-main">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <p class="eyebrow"><span class="status-dot"></span><span data-i18n="auth.eyebrow">YOUR PRIVATE WORKSPACE</span></p>
+      {% if mode == "signup" %}
+        <h1 id="auth-title" data-i18n="auth.signupTitle">Create your account</h1>
+        <p class="auth-intro" data-i18n="auth.signupIntro">Your documents and checklist progress belong to your account.</p>
+        <form method="post" action="/signup" class="auth-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="full_name" data-i18n="auth.fullName">Full name</label>
+          <input id="full_name" name="full_name" type="text" maxlength="100" autocomplete="name" required>
+          <label for="email" data-i18n="auth.email">Email</label>
+          <input id="email" name="email" type="email" maxlength="254" autocomplete="email" required>
+          <label for="password" data-i18n="auth.password">Password</label>
+          <input id="password" name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required>
+          <small data-i18n="auth.passwordHint">Use at least 12 characters.</small>
+          <label for="confirm_password" data-i18n="auth.confirmPassword">Confirm password</label>
+          <input id="confirm_password" name="confirm_password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required>
+          <button class="button button-primary auth-submit" type="submit" data-i18n="auth.signupButton">Create account</button>
+        </form>
+        <p class="auth-switch"><span data-i18n="auth.haveAccount">Already have an account?</span> <a href="/login" data-i18n="auth.loginLink">Log in</a></p>
+      {% elif mode == "login" %}
+        <h1 id="auth-title" data-i18n="auth.loginTitle">Welcome back</h1>
+        <p class="auth-intro" data-i18n="auth.loginIntro">Log in to continue to your private workspace.</p>
+        <form method="post" action="{{ url_for('auth_api.authenticate', next=request.args.get('next', '')) }}" class="auth-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="email" data-i18n="auth.email">Email</label>
+          <input id="email" name="email" type="email" maxlength="254" autocomplete="email" required>
+          <label for="password" data-i18n="auth.password">Password</label>
+          <input id="password" name="password" type="password" maxlength="128" autocomplete="current-password" required>
+          <button class="button button-primary auth-submit" type="submit" data-i18n="auth.loginButton">Log in</button>
+        </form>
+        <p class="auth-switch"><a href="/forgot-password" data-i18n="auth.forgotLink">Forgot your password?</a></p>
+        <p class="auth-switch"><span data-i18n="auth.needAccount">New to LifeGraph?</span> <a href="/signup" data-i18n="auth.signupLink">Create account</a></p>
+      {% elif mode == "forgot" %}
+        <h1 id="auth-title" data-i18n="auth.forgotTitle">Reset your password</h1>
+        <p class="auth-intro" data-i18n="auth.forgotIntro">Enter your email and, if configured, we’ll send a one-use reset link.</p>
+        <form method="post" action="/forgot-password" class="auth-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="email" data-i18n="auth.email">Email</label>
+          <input id="email" name="email" type="email" maxlength="254" autocomplete="email" required>
+          <button class="button button-primary auth-submit" type="submit" data-i18n="auth.forgotButton">Send reset link</button>
+        </form>
+        <p class="auth-switch"><a href="/login" data-i18n="auth.loginLink">Log in</a></p>
+      {% else %}
+        <h1 id="auth-title" data-i18n="auth.newPasswordTitle">Choose a new password</h1>
+        <p class="auth-intro" data-i18n="auth.newPasswordIntro">Reset links expire after 30 minutes and can only be used once.</p>
+        <form method="post" action="{{ url_for('auth_api.set_new_password', token=reset_token) }}" class="auth-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="password" data-i18n="auth.password">Password</label>
+          <input id="password" name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required>
+          <label for="confirm_password" data-i18n="auth.confirmPassword">Confirm password</label>
+          <input id="confirm_password" name="confirm_password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required>
+          <button class="button button-primary auth-submit" type="submit" data-i18n="auth.resetButton">Set new password</button>
+        </form>
+      {% endif %}
+      {% if error %}
+        <p class="auth-message auth-error" role="alert">{{ error }}</p>
+      {% endif %}
+      {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+          <p class="auth-message" role="status">{{ message }}</p>
+        {% endfor %}
+      {% endwith %}
+    </section>
+  </main>
+  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="auth.footer">A private service workspace</span></span><a class="text-link" href="/service" data-i18n="auth.browseServices">Browse public services</a></footer>
+</body>
+</html>

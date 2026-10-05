@@ -3,13 +3,12 @@ const checklistRoot = document.querySelector("[data-checklist-app]");
 
 if (serviceRoot || checklistRoot) {
 	const selectedKey = "lifegraph.selectedServiceId";
-	const progressKey = "lifegraph.checklistProgress";
-	const requirementProgressKey = "lifegraph.requirementChecklistProgress";
 	const reminderKeys = [
 		"service.reminderConfirm",
 		"service.reminderAvailability",
 	];
 	const t = (key, values) => window.LifeGraphI18n?.t(key, values) || key;
+	const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
 	const detail = document.querySelector("[data-service-detail]");
 	const feedback = document.querySelector("[data-catalogue-feedback]");
 	const search = document.querySelector("[data-service-search]");
@@ -65,27 +64,22 @@ if (serviceRoot || checklistRoot) {
 		detail.append(choices);
 	};
 
-	const readProgress = (key = progressKey) => {
-		try {
-			const stored = JSON.parse(localStorage.getItem(key) || "{}");
-			if (stored && typeof stored === "object" && !Array.isArray(stored)) return stored;
-			showFeedback("service.feedbackStorage");
-			return {};
-		} catch {
-			showFeedback("service.feedbackStorage");
-			return {};
+	const saveChecklistState = async (serviceId, kind, index, checked) => {
+		const response = await fetch(`/api/checklists/${encodeURIComponent(serviceId)}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				"X-CSRFToken": csrfToken,
+			},
+			body: JSON.stringify({ kind, index, checked }),
+		});
+		if (response.status === 401) {
+			showFeedback("service.loginToSaveProgress");
+			throw new Error("Authentication required.");
 		}
-	};
-
-	const saveChecklistState = (key, serviceId, index, checked) => {
-		try {
-			const progress = readProgress(key);
-			const state = Array.isArray(progress[serviceId]) ? progress[serviceId] : [];
-			state[index] = checked;
-			progress[serviceId] = state;
-			localStorage.setItem(key, JSON.stringify(progress));
-		} catch {
-			showFeedback("service.feedbackStorage");
+		if (!response.ok) {
+			const payload = await response.json().catch(() => ({}));
+			throw new Error(payload.error || t("service.feedbackStorage"));
 		}
 	};
 
@@ -96,6 +90,10 @@ if (serviceRoot || checklistRoot) {
 	);
 
 	const renderChecklist = (service, target) => {
+		const savedRequirements = Array(service.requirements.length).fill(false);
+		const saved = Array(reminderKeys.length).fill(false);
+		let updateRequirementProgress = () => {};
+		let updateReminderProgress = () => {};
 		const requirementsPanel = make("section", "checklist-section");
 		requirementsPanel.append(make("h3", "detail-section-title", t("service.requirementsHeading")));
 		const requirementsStatus = service.requirement_verification_status || service.verification_status;
@@ -123,12 +121,11 @@ if (serviceRoot || checklistRoot) {
 			if (window.LifeGraphI18n?.language === "ta") {
 				requirementsPanel.append(make("p", "verification-message", t("service.requirementTranslationNote")));
 			}
-			const savedRequirements = readProgress(requirementProgressKey)[service.id] || [];
 			const progressLabel = make("p", "progress-label");
 			const progress = make("progress", "checklist-progress");
 			progress.max = service.requirements.length;
 			progress.setAttribute("aria-label", t("service.requirementProgressLabel"));
-			const updateRequirementProgress = () => {
+			updateRequirementProgress = () => {
 				const done = service.requirements.reduce(
 					(count, _, index) => count + (savedRequirements[index] ? 1 : 0),
 					0
@@ -146,12 +143,25 @@ if (serviceRoot || checklistRoot) {
 				const label = make("label", "reminder-item");
 				const input = document.createElement("input");
 				input.type = "checkbox";
-				input.checked = Boolean(savedRequirements[index]);
+				input.disabled = true;
+				input.dataset.checklistKind = "requirement";
+				input.dataset.checklistIndex = String(index);
 				input.setAttribute("aria-label", requirement);
-				input.addEventListener("change", () => {
-					savedRequirements[index] = input.checked;
-					saveChecklistState(requirementProgressKey, service.id, index, input.checked);
-					updateRequirementProgress();
+				input.addEventListener("change", async () => {
+					const next = input.checked;
+					input.disabled = true;
+					try {
+						await saveChecklistState(service.id, "requirement", index, next);
+						savedRequirements[index] = next;
+					} catch (error) {
+						input.checked = !next;
+						showFeedback(error.message === "Authentication required."
+							? "service.loginToSaveProgress"
+							: "service.feedbackStorage");
+					} finally {
+						input.disabled = false;
+						updateRequirementProgress();
+					}
 				});
 				label.append(input, make("span", "", requirement));
 				requirementList.append(label);
@@ -170,12 +180,11 @@ if (serviceRoot || checklistRoot) {
 		reminderPanel.append(heading);
 		reminderPanel.append(make("p", "reminder-caption", t("service.reminderDescription")));
 
-		const saved = readProgress(progressKey)[service.id] || [];
 		const progressLabel = make("p", "progress-label");
 		const progress = make("progress", "checklist-progress");
 		progress.max = reminderKeys.length;
 		progress.setAttribute("aria-label", t("service.progressLabel"));
-		const updateReminderProgress = () => {
+		updateReminderProgress = () => {
 			const doneCount = reminderKeys.reduce(
 				(count, _, index) => count + (saved[index] ? 1 : 0),
 				0
@@ -194,18 +203,64 @@ if (serviceRoot || checklistRoot) {
 			const label = make("label", "reminder-item");
 			const input = document.createElement("input");
 			input.type = "checkbox";
+			input.disabled = true;
+			input.dataset.checklistKind = "reminder";
+			input.dataset.checklistIndex = String(index);
 			input.setAttribute("aria-label", t(reminderKey));
-			input.checked = Boolean(saved[index]);
-			input.addEventListener("change", () => {
-				saved[index] = input.checked;
-				saveChecklistState(progressKey, service.id, index, input.checked);
-				updateReminderProgress();
+			input.addEventListener("change", async () => {
+				const next = input.checked;
+				input.disabled = true;
+				try {
+					await saveChecklistState(service.id, "reminder", index, next);
+					saved[index] = next;
+				} catch (error) {
+					input.checked = !next;
+					showFeedback(error.message === "Authentication required."
+						? "service.loginToSaveProgress"
+						: "service.feedbackStorage");
+				} finally {
+					input.disabled = false;
+					updateReminderProgress();
+				}
 			});
 			label.append(input, make("span", "", t(reminderKey)));
 			list.append(label);
 		});
 		reminderPanel.append(list);
 		target.append(reminderPanel);
+
+		fetch(`/api/checklists/${encodeURIComponent(service.id)}`)
+			.then(async (response) => {
+				if (response.status === 401) {
+					target.querySelectorAll("[data-checklist-kind]").forEach((input) => {
+						input.disabled = true;
+					});
+					showFeedback("service.loginToSaveProgress");
+					return null;
+				}
+				const payload = await response.json();
+				if (!response.ok) throw new Error(payload.error || t("service.feedbackStorage"));
+				return payload;
+			})
+			.then((payload) => {
+				if (!payload) return;
+				payload.requirements.forEach((checked, index) => {
+					savedRequirements[index] = Boolean(checked);
+				});
+				payload.reminders.forEach((checked, index) => {
+					saved[index] = Boolean(checked);
+				});
+				target.querySelectorAll("[data-checklist-kind]").forEach((input) => {
+					const values = input.dataset.checklistKind === "requirement"
+						? payload.requirements
+						: payload.reminders;
+					input.checked = Boolean(values[Number(input.dataset.checklistIndex)]);
+					input.disabled = false;
+				});
+				updateRequirementProgress();
+				updateReminderProgress();
+			})
+			.catch(() => showFeedback("service.feedbackStorage"));
 	};
 
 	const renderDetails = (service, target = detail) => {

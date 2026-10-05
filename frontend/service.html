@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title data-i18n="service.title">Services | LifeGraph</title>
   <link rel="stylesheet" href="/static/css/style.css">
   <script src="/static/js/locales.js" defer></script>
@@ -12,7 +13,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome"><span class="brand-mark">L</span>LifeGraph</a>
-    <nav class="site-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation"><a href="/dashboard" data-i18n="common.dashboard">Dashboard</a><a href="/service" data-i18n="common.services">Services</a><a href="/checklist" data-i18n="common.checklist">Checklist</a><a href="/map" data-i18n="common.centres">Centres</a></nav>
+    <nav class="site-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation"><a href="/dashboard" data-i18n="common.dashboard">Dashboard</a><a href="/service" data-i18n="common.services">Services</a><a href="/checklist" data-i18n="common.checklist">Checklist</a><a href="/map" data-i18n="common.centres">Centres</a><a href="/login" data-i18n="auth.loginLink">Log in</a></nav>
     <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
     <span class="api-status" data-api-status>Checking API</span>
   </header>

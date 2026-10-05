@@ -16,6 +16,8 @@ backend/instance/
 *.sqlite
 *.sqlite3
 *.db
+*.bak
+*.backup
 
 # Uploads (retain the directory marker)
 uploads/*

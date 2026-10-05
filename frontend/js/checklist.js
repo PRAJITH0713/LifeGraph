@@ -92,10 +92,21 @@ if (serviceRoot || checklistRoot) {
 	const renderChecklist = (service, target) => {
 		const requirementsPanel = make("section", "checklist-section");
 		requirementsPanel.append(make("h3", "detail-section-title", t("service.requirementsHeading")));
-		const statusKey = service.verification_status === "verified"
+		const requirementsVerified = service.verification_status === "verified"
+			&& service.requirements.length > 0;
+		const statusKey = requirementsVerified
 			? "service.verified"
 			: "service.needsVerification";
 		requirementsPanel.append(make("span", "verification-badge", t(statusKey)));
+		if (!requirementsVerified) {
+			requirementsPanel.append(make(
+				"p",
+				"verification-message",
+				service.requirements.length
+					? t("service.requirementItemsUnverified")
+					: t("service.requirementsUnverified")
+			));
+		}
 		if (service.requirements.length) {
 			if (window.LifeGraphI18n?.language === "ta") {
 				requirementsPanel.append(make("p", "verification-message", t("service.requirementTranslationNote")));
@@ -136,7 +147,6 @@ if (serviceRoot || checklistRoot) {
 			updateRequirementProgress();
 			requirementsPanel.append(requirementList);
 		} else {
-			requirementsPanel.append(make("p", "verification-message", t("service.requirementsUnverified")));
 			requirementsPanel.append(make("p", "empty-requirements", t("service.noProofItems")));
 		}
 		target.append(requirementsPanel);

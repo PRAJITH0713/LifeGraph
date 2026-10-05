@@ -33,3 +33,16 @@ def seed_services(connection: sqlite3.Connection):
                 service["last_verified"],
             ),
         )
+    connection.execute(
+        """
+        UPDATE services
+        SET source_url = ?
+        WHERE source_url = ?
+          AND verification_status = 'needs_verification'
+          AND requirements_json = '[]'
+        """,
+        (
+            catalogue["catalogue_source"],
+            "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+        ),
+    )

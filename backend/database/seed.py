@@ -20,8 +20,9 @@ def seed_services(connection: sqlite3.Connection):
             """
             INSERT OR IGNORE INTO services (
                 id, name, purpose, requirements_json, source_url,
-                verification_status, last_verified, is_demo
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+                verification_status, last_verified, is_demo, category,
+                responsible_authority, requirement_verification_status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
             """,
             (
                 service["id"],
@@ -31,6 +32,24 @@ def seed_services(connection: sqlite3.Connection):
                 service["source_url"],
                 service["verification_status"],
                 service["last_verified"],
+                service.get("category", "Tamil Nadu e-Sevai Certificates"),
+                service.get("responsible_authority", ""),
+                service.get(
+                    "requirement_verification_status",
+                    service["verification_status"],
+                ),
+            ),
+        )
+        connection.execute(
+            """
+            UPDATE services
+            SET category = ?, responsible_authority = ?
+            WHERE id = ? AND responsible_authority = ''
+            """,
+            (
+                service.get("category", "Tamil Nadu e-Sevai Certificates"),
+                service.get("responsible_authority", ""),
+                service["id"],
             ),
         )
     connection.execute(

@@ -89,15 +89,27 @@ if (serviceRoot || checklistRoot) {
 		}
 	};
 
+	const portalLabelKey = (service) => (
+		service.category === "Tamil Nadu e-Sevai Certificates"
+			? "service.openSource"
+			: "service.openOfficialPortal"
+	);
+
 	const renderChecklist = (service, target) => {
 		const requirementsPanel = make("section", "checklist-section");
 		requirementsPanel.append(make("h3", "detail-section-title", t("service.requirementsHeading")));
-		const requirementsVerified = service.verification_status === "verified"
+		const requirementsStatus = service.requirement_verification_status || service.verification_status;
+		const requirementsVerified = requirementsStatus === "verified"
 			&& service.requirements.length > 0;
 		const statusKey = requirementsVerified
 			? "service.verified"
 			: "service.needsVerification";
 		requirementsPanel.append(make("span", "verification-badge", t(statusKey)));
+		const instructions = make("a", "source-link requirement-source-link", t(portalLabelKey(service)));
+		instructions.href = service.official_portal_url || service.source_url;
+		instructions.target = "_blank";
+		instructions.rel = "noopener noreferrer";
+		requirementsPanel.append(instructions);
 		if (!requirementsVerified) {
 			requirementsPanel.append(make(
 				"p",
@@ -200,21 +212,24 @@ if (serviceRoot || checklistRoot) {
 		if (!target) return;
 		target.replaceChildren();
 		const header = make("div", "detail-header");
-		header.append(make("p", "eyebrow", t("service.region")));
-		header.append(make("span", "demo-label", t("service.catalogueDemo")));
+		header.append(make("p", "eyebrow", service.category || t("service.region")));
+		header.append(make("span", "demo-label", t("service.catalogueEntry")));
 		const language = window.LifeGraphI18n?.language;
 		target.append(header, make("h2", "detail-title", window.LifeGraphI18n?.serviceName(service) || service.name));
 		if (language === "ta") {
 			target.append(make("p", "translation-warning", t("service.translationUnverified")));
 			target.append(make("p", "service-purpose-source", `${t("service.serviceNameSource")} ${service.name}`));
 		}
-		target.append(make("p", "service-purpose", window.LifeGraphI18n?.servicePurpose(service) || service.purpose));
+		target.append(make("p", "service-purpose", window.LifeGraphI18n?.servicePurpose(service) || service.description || service.purpose));
 		if (language === "ta") {
 			target.append(make("p", "translation-warning", t("service.purposeTranslationNote")));
 		}
+		if (service.responsible_authority) {
+			target.append(make("p", "service-authority", `${t("service.responsibleAuthority")} ${service.responsible_authority}`));
+		}
 
-		const source = make("a", "source-link", t("service.openSource"));
-		source.href = service.source_url;
+		const source = make("a", "source-link", t(portalLabelKey(service)));
+		source.href = service.official_portal_url || service.source_url;
 		source.target = "_blank";
 		source.rel = "noopener noreferrer";
 		target.append(source);
@@ -259,19 +274,33 @@ if (serviceRoot || checklistRoot) {
 			list.append(make("p", "empty-state", t(emptyMessageKey)));
 			return;
 		}
+		const groups = new Map();
 		for (const service of filteredItems) {
-			const button = make("button", "service-option");
-			button.type = "button";
-			button.setAttribute("aria-pressed", String(selectedService?.id === service.id));
-			button.append(make("strong", "", window.LifeGraphI18n?.serviceName(service) || service.name));
-			if (window.LifeGraphI18n?.language === "ta") {
-				button.append(make("small", "service-original-name", service.name));
-				button.append(make("small", "", t("service.translationUnverified")));
-			} else {
-				button.append(make("small", "", t("service.needsVerification")));
+			const category = service.category || t("service.uncategorized");
+			if (!groups.has(category)) groups.set(category, []);
+			groups.get(category).push(service);
+		}
+		for (const [category, groupServices] of groups) {
+			const section = make("section", "service-category-group");
+			section.append(make("h3", "service-category-title", category === "Everyday Government Services"
+				? t("service.everydayCategory")
+				: category));
+			const categoryItems = make("div", "service-category-items");
+			for (const service of groupServices) {
+				const button = make("button", "service-option");
+				button.type = "button";
+				button.setAttribute("aria-pressed", String(selectedService?.id === service.id));
+				button.append(make("strong", "", window.LifeGraphI18n?.serviceName(service) || service.name));
+				button.append(make("small", "", t(
+					(service.requirement_verification_status || service.verification_status) === "verified"
+						? "service.verified"
+						: "service.needsVerification"
+				)));
+				button.addEventListener("click", () => selectService(service));
+				categoryItems.append(button);
 			}
-			button.addEventListener("click", () => selectService(service));
-			list.append(button);
+			section.append(categoryItems);
+			list.append(section);
 		}
 	};
 

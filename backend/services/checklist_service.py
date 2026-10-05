@@ -6,10 +6,14 @@ def build_checklist(service):
 	return {
 		"service_id": service["id"],
 		"requirements": requirements,
-		"verification_status": service["verification_status"],
+		"category": service["category"],
+		"responsible_authority": service["responsible_authority"],
+		"official_portal_url": service["official_portal_url"],
+		"verification_status": service["requirement_verification_status"],
+		"requirement_verification_status": service["requirement_verification_status"],
 		"message": (
 			"Needs verification: no official proof requirements are confirmed."
-			if service["verification_status"] != "verified" or not requirements
+			if service["requirement_verification_status"] != "verified" or not requirements
 			else None
 		),
 	}

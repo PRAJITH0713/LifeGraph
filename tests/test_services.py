@@ -26,7 +26,7 @@ class ServiceCatalogueTests(unittest.TestCase):
         response = self.client.get("/api/services")
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
-        self.assertEqual(payload["count"], 16)
+        self.assertEqual(payload["count"], 33)
         self.assertEqual(
             {service["name"] for service in payload["services"]},
             {
@@ -46,6 +46,23 @@ class ServiceCatalogueTests(unittest.TestCase):
                 "Solvency Certificate",
                 "No Male Child Certificate",
                 "Unmarried Certificate",
+                "Driving Licence — Learner's Licence",
+                "Driving Licence — New Driving Licence",
+                "Driving Licence — Renewal",
+                "Driving Licence — Duplicate",
+                "PAN Card — New PAN",
+                "PAN Card — Correction",
+                "Voter ID — New Registration",
+                "Voter ID — Correction",
+                "Voter ID — Replacement",
+                "Passport — Fresh Passport",
+                "Passport — Reissue",
+                "Birth Certificate Information",
+                "Death Certificate Information",
+                "Marriage Certificate Information",
+                "Ration Card Services",
+                "Aadhaar Update Guidance",
+                "Vehicle RC Registration and Related Services",
             },
         )
         for service in payload["services"]:
@@ -53,18 +70,32 @@ class ServiceCatalogueTests(unittest.TestCase):
             self.assertEqual(service["verification_status"], "needs_verification")
             self.assertIsNone(service["last_verified"])
             self.assertTrue(service["is_demo"])
+            self.assertTrue(service["category"])
+            self.assertTrue(service["description"])
+            self.assertTrue(service["responsible_authority"])
+            self.assertTrue(service["official_portal_url"].startswith("https://"))
             self.assertEqual(
-                service["source_url"],
-                "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+                service["requirement_verification_status"],
+                "needs_verification",
             )
+            if service["category"] == "Tamil Nadu e-Sevai Certificates":
+                self.assertEqual(
+                    service["source_url"],
+                    "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+                )
 
     def test_search_is_case_insensitive_and_bounded(self):
         response = self.client.get("/api/services?q=income")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["count"], 2)
+        self.assertEqual(response.get_json()["count"], 4)
         self.assertEqual(
             {service["name"] for service in response.get_json()["services"]},
-            {"Income Certificate", "Agricultural Income Certificate"},
+            {
+                "Income Certificate",
+                "Agricultural Income Certificate",
+                "PAN Card — New PAN",
+                "PAN Card — Correction",
+            },
         )
         self.assertEqual(
             self.client.get(f"/api/services?q={'x' * 101}").status_code,
@@ -107,6 +138,24 @@ class ServiceCatalogueTests(unittest.TestCase):
                     1,
                 ),
             )
+            connection.execute(
+                """
+                INSERT INTO services (
+                    id, name, purpose, requirements_json, source_url,
+                    verification_status, last_verified, is_demo
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    "tn-income-certificate",
+                    "Income Certificate",
+                    "Existing verified description",
+                    '["Existing verified proof item"]',
+                    old_source,
+                    "verified",
+                    "2025-01-01",
+                    0,
+                ),
+            )
         connection.close()
 
         from database.db import initialize_database
@@ -120,7 +169,22 @@ class ServiceCatalogueTests(unittest.TestCase):
             "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
         )
         self.assertEqual(response.get_json()["purpose"], "Existing purpose")
-        self.assertEqual(self.client.get("/api/services").get_json()["count"], 16)
+        preserved = self.client.get("/api/services/tn-income-certificate")
+        self.assertEqual(preserved.status_code, 200)
+        self.assertEqual(
+            preserved.get_json()["purpose"],
+            "Existing verified description",
+        )
+        self.assertEqual(
+            preserved.get_json()["requirements"],
+            ["Existing verified proof item"],
+        )
+        self.assertEqual(
+            preserved.get_json()["verification_status"],
+            "verified",
+        )
+        self.assertEqual(preserved.get_json()["source_url"], old_source)
+        self.assertEqual(self.client.get("/api/services").get_json()["count"], 33)
 
     def test_service_and_checklist_routes_validate_ids(self):
         detail = self.client.get("/api/services/tn-residence-certificate")
@@ -146,6 +210,40 @@ class ServiceCatalogueTests(unittest.TestCase):
                 self.assertEqual(checklist.status_code, 200)
                 self.assertEqual(checklist.get_json()["service_id"], service["id"])
                 self.assertEqual(checklist.get_json()["requirements"], [])
+                self.assertEqual(
+                    checklist.get_json()["official_portal_url"],
+                    service["official_portal_url"],
+                )
+
+    def test_everyday_services_are_separate_and_have_correct_sources(self):
+        services = self.client.get("/api/services").get_json()["services"]
+        everyday = [
+            service for service in services
+            if service["category"] == "Everyday Government Services"
+        ]
+        self.assertEqual(len(everyday), 17)
+        self.assertEqual(len({service["id"] for service in services}), 33)
+        self.assertEqual(len({service["name"] for service in services}), 33)
+
+        source_by_id = {
+            "in-driving-licence-learners": "https://parivahan.gov.in/",
+            "in-pan-new": "https://www.incometaxindia.gov.in/en/pan",
+            "in-voter-registration": "https://voters.eci.gov.in/",
+            "in-passport-fresh": "https://www.passportindia.gov.in/",
+        }
+        for service_id, expected_source in source_by_id.items():
+            with self.subTest(service=service_id):
+                response = self.client.get(
+                    f"/api/services/{service_id}/checklist"
+                )
+                self.assertEqual(response.status_code, 200)
+                payload = response.get_json()
+                self.assertEqual(payload["official_portal_url"], expected_source)
+                self.assertEqual(payload["requirements"], [])
+                self.assertEqual(
+                    payload["requirement_verification_status"],
+                    "needs_verification",
+                )
 
     def test_pages_include_workflow_mounts(self):
         service_page = self.client.get("/service")

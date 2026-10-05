@@ -12,13 +12,20 @@ def _connect(database_path):
 
 
 def _service_from_row(row):
+    requirements = json.loads(row["requirements_json"])
     return {
         "id": row["id"],
         "name": row["name"],
         "purpose": row["purpose"],
-        "requirements": json.loads(row["requirements_json"]),
+        "description": row["purpose"],
+        "requirements": requirements,
         "source_url": row["source_url"],
-        "verification_status": row["verification_status"],
+        "official_portal_url": row["source_url"],
+        "requirements_source_url": row["source_url"],
+        "category": row["category"],
+        "responsible_authority": row["responsible_authority"],
+        "verification_status": row["requirement_verification_status"],
+        "requirement_verification_status": row["requirement_verification_status"],
         "last_verified": row["last_verified"],
         "is_demo": bool(row["is_demo"]),
     }
@@ -29,10 +36,11 @@ def list_services(database_path, query=""):
         rows = connection.execute(
             """
             SELECT * FROM services
-            WHERE name LIKE ? OR purpose LIKE ?
+            WHERE name LIKE ? OR purpose LIKE ? OR category LIKE ?
+                OR responsible_authority LIKE ?
             ORDER BY name COLLATE NOCASE
             """,
-            (f"%{query}%", f"%{query}%"),
+            (f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%"),
         ).fetchall()
     return [_service_from_row(row) for row in rows]
 

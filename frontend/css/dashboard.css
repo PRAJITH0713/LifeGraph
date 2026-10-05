@@ -372,6 +372,16 @@ html[lang="ta"] {
 .upload-status { min-height: 1.6em; color: #52675a; overflow-wrap: anywhere; }
 .upload-status[data-state="error"] { color: #a33d32; }
 .upload-status[data-state="success"] { color: #34714d; }
+.upload-status[data-state="ready"] { color: #315f85; font-weight: 700; }
+.upload-status[data-state="loading"] { display: flex; align-items: center; gap: 8px; color: #315f85; }
+.upload-status[data-state="loading"]::before { width: 13px; height: 13px; flex: 0 0 auto; border: 2px solid #bdd0dc; border-top-color: var(--blue); border-radius: 50%; content: ""; animation: upload-spin 700ms linear infinite; }
+.upload-confirm-button { min-height: 36px; margin-top: 9px; padding: 0 13px; border: 1px solid var(--forest); border-radius: 6px; color: #fff; background: var(--forest); font: 700 10px var(--sans); cursor: pointer; }
+.upload-confirm-button:hover:not(:disabled) { background: #104a35; }
+.upload-confirm-button:disabled { border-color: #d8dfd8; color: #87948c; background: #edf0ec; cursor: not-allowed; }
+.upload-confirm-button:focus-visible { outline: 3px solid #74a9cc; outline-offset: 2px; }
+.uploaded-document { animation: fade-rise 220ms ease-out both; }
+
+@keyframes upload-spin { to { transform: rotate(360deg); } }
 
 .leave-panel {
   padding: 22px 23px;

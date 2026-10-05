@@ -93,7 +93,7 @@
       <section class="panel journey-panel" aria-labelledby="service-journey-title">
         <div class="panel-heading">
           <div><p class="section-kicker" data-i18n="dashboard.resumeJourney">PICK UP WHERE YOU LEFT OFF</p><h2 id="service-journey-title" data-i18n="dashboard.yourJourney">Your Service Journey</h2></div>
-          <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
+          <span class="demo-pill" data-i18n="dashboard.documentDataStatus">DEMO + UPLOADED</span>
         </div>
         <div class="service-summary">
           <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20h14M7 20V9l5-4 5 4v11M10 12h4M10 15h4"/></svg></span>
@@ -114,15 +114,16 @@
           <div><p class="section-kicker" data-i18n="dashboard.documentOverview">DOCUMENT OVERVIEW</p><h2 id="documents-title" data-i18n="dashboard.yourDocuments">Your Documents</h2></div>
           <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
         </div>
-        <ul class="document-list">
+        <ul class="document-list" data-document-list>
           <li><span class="file-icon file-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.aadhaar">Aadhaar Card</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
           <li><span class="file-icon file-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.addressProof">Address Proof</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
           <li><span class="file-icon file-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-action" data-i18n="dashboard.actionRequired">Action required</span></li>
         </ul>
-        <p class="privacy-note" data-i18n="dashboard.noDocumentsStored">Demo records only. Uploaded files are listed separately.</p>
+        <p class="privacy-note" data-i18n="dashboard.noDocumentsStored">Existing entries are demos. Uploaded files appear in this list.</p>
         <input class="visually-hidden" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" data-document-upload-input aria-describedby="document-upload-status">
         <p class="upload-guidance" data-i18n="dashboard.uploadGuidance">PDF, PNG, JPG, or JPEG · Up to 10 MB</p>
         <p class="upload-status" id="document-upload-status" data-document-upload-status role="status" aria-live="polite" data-i18n="dashboard.uploadIdle">No document selected.</p>
+        <button class="upload-confirm-button" type="button" data-document-upload-confirm disabled data-i18n="dashboard.confirmUpload">Upload Document</button>
       </section>
 
       <section class="leave-panel" aria-labelledby="before-leave-title">

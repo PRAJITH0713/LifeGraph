@@ -32,6 +32,7 @@ class DocumentUploadTests(unittest.TestCase):
             ("sample.jpg", b"\xff\xd8\xffsample"),
             ("sample.jpeg", b"\xff\xd8\xffsample"),
             ("ஆவணம்.pdf", b"%PDF-1.7 Tamil filename"),
+            ("../outside.pdf", b"%PDF-1.7 path traversal check"),
         )
 
         for filename, contents in examples:
@@ -43,7 +44,9 @@ class DocumentUploadTests(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, 201)
                 result = response.get_json()
-                self.assertEqual(result["filename"], filename)
+                expected_name = os.path.basename(filename)
+                self.assertEqual(result["filename"], expected_name)
+                self.assertEqual(result["size"], len(contents))
                 self.assertIn("No text extraction", result["message"])
                 stored_files = os.listdir(self.upload_directory)
                 self.assertEqual(len(stored_files), 1)

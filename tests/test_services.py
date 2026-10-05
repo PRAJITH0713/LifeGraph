@@ -25,10 +25,16 @@ class ServiceCatalogueTests(unittest.TestCase):
         response = self.client.get("/api/services")
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
-        self.assertEqual(payload["count"], 2)
+        self.assertEqual(payload["count"], 5)
         self.assertEqual(
             {service["name"] for service in payload["services"]},
-            {"Residence Certificate", "Income Certificate"},
+            {
+                "Residence Certificate",
+                "Income Certificate",
+                "Community Certificate",
+                "Nativity Certificate",
+                "First Graduate Certificate",
+            },
         )
         for service in payload["services"]:
             self.assertEqual(service["requirements"], [])
@@ -57,6 +63,19 @@ class ServiceCatalogueTests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/services/not-found").status_code, 404)
         self.assertEqual(self.client.get("/api/services/!!").status_code, 400)
 
+    def test_each_demo_service_has_selectable_detail_and_unverified_checklist(self):
+        services = self.client.get("/api/services").get_json()["services"]
+        for service in services:
+            with self.subTest(service=service["id"]):
+                detail = self.client.get(f"/api/services/{service['id']}")
+                checklist = self.client.get(f"/api/services/{service['id']}/checklist")
+                self.assertEqual(detail.status_code, 200)
+                self.assertEqual(detail.get_json()["verification_status"], "needs_verification")
+                self.assertEqual(detail.get_json()["requirements"], [])
+                self.assertEqual(checklist.status_code, 200)
+                self.assertEqual(checklist.get_json()["service_id"], service["id"])
+                self.assertEqual(checklist.get_json()["requirements"], [])
+
     def test_pages_include_workflow_mounts(self):
         service_page = self.client.get("/service")
         checklist_page = self.client.get("/checklist")
@@ -66,6 +85,11 @@ class ServiceCatalogueTests(unittest.TestCase):
         self.assertIn(b"data-checklist-app", checklist_page.data)
         service_page.close()
         checklist_page.close()
+
+    def test_api_does_not_enable_wildcard_cross_origin_access(self):
+        response = self.client.get("/api/services")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("Access-Control-Allow-Origin", response.headers)
 
 
 if __name__ == "__main__":

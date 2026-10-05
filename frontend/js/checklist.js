@@ -4,6 +4,7 @@ const checklistRoot = document.querySelector("[data-checklist-app]");
 if (serviceRoot || checklistRoot) {
 	const selectedKey = "lifegraph.selectedServiceId";
 	const progressKey = "lifegraph.checklistProgress";
+	const requirementProgressKey = "lifegraph.requirementChecklistProgress";
 	const reminderKeys = [
 		"service.reminderConfirm",
 		"service.reminderAvailability",
@@ -22,10 +23,6 @@ if (serviceRoot || checklistRoot) {
 		if (feedback) feedback.textContent = t(key);
 	};
 
-	const renderEmptyChecklist = () => {
-		detail?.replaceChildren(make("p", "empty-state", t("checklist.chooseService")));
-	};
-
 	const make = (tag, className, text) => {
 		const element = document.createElement(tag);
 		if (className) element.className = className;
@@ -33,22 +30,60 @@ if (serviceRoot || checklistRoot) {
 		return element;
 	};
 
-	const readProgress = () => {
+	const selectChecklistService = (service) => {
+		selectedService = service;
 		try {
-			const stored = JSON.parse(localStorage.getItem(progressKey) || "{}");
-			return stored && typeof stored === "object" ? stored : {};
+			localStorage.setItem(selectedKey, service.id);
 		} catch {
+			showFeedback("service.feedbackSelectionStorage");
+		}
+		const params = new URLSearchParams(window.location.search);
+		params.set("service", service.id);
+		window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+		renderDetails(service);
+	};
+
+	const renderEmptyChecklist = () => {
+		if (!detail) return;
+		detail.replaceChildren();
+		if (serviceLoadError || !services.length) {
+			detail.append(make("p", "empty-state", t("service.feedbackError")));
+			return;
+		}
+
+		detail.append(make("h2", "detail-title", t("checklist.chooseService")));
+		detail.append(make("p", "service-purpose", t("checklist.chooseServiceHelp")));
+		const choices = make("div", "checklist-service-options");
+		for (const service of services) {
+			const button = make("button", "service-option");
+			button.type = "button";
+			button.append(make("strong", "", window.LifeGraphI18n?.serviceName(service) || service.name));
+			button.append(make("small", "", t("service.needsVerification")));
+			button.addEventListener("click", () => selectChecklistService(service));
+			choices.append(button);
+		}
+		detail.append(choices);
+	};
+
+	const readProgress = (key = progressKey) => {
+		try {
+			const stored = JSON.parse(localStorage.getItem(key) || "{}");
+			if (stored && typeof stored === "object" && !Array.isArray(stored)) return stored;
+			showFeedback("service.feedbackStorage");
+			return {};
+		} catch {
+			showFeedback("service.feedbackStorage");
 			return {};
 		}
 	};
 
-	const saveReminderState = (serviceId, index, checked) => {
+	const saveChecklistState = (key, serviceId, index, checked) => {
 		try {
-			const progress = readProgress();
+			const progress = readProgress(key);
 			const state = Array.isArray(progress[serviceId]) ? progress[serviceId] : [];
 			state[index] = checked;
 			progress[serviceId] = state;
-			localStorage.setItem(progressKey, JSON.stringify(progress));
+			localStorage.setItem(key, JSON.stringify(progress));
 		} catch {
 			showFeedback("service.feedbackStorage");
 		}
@@ -65,10 +100,40 @@ if (serviceRoot || checklistRoot) {
 			if (window.LifeGraphI18n?.language === "ta") {
 				requirementsPanel.append(make("p", "verification-message", t("service.requirementTranslationNote")));
 			}
-			const requirementList = make("ul", "requirement-list");
-			for (const requirement of service.requirements) {
-				requirementList.append(make("li", "", requirement));
-			}
+			const savedRequirements = readProgress(requirementProgressKey)[service.id] || [];
+			const progressLabel = make("p", "progress-label");
+			const progress = make("progress", "checklist-progress");
+			progress.max = service.requirements.length;
+			progress.setAttribute("aria-label", t("service.requirementProgressLabel"));
+			const updateRequirementProgress = () => {
+				const done = service.requirements.reduce(
+					(count, _, index) => count + (savedRequirements[index] ? 1 : 0),
+					0
+				);
+				progressLabel.textContent = t("service.requirementProgress", {
+					done,
+					total: service.requirements.length,
+				});
+				progress.value = done;
+			};
+			requirementsPanel.append(progressLabel, progress);
+
+			const requirementList = make("div", "reminder-list requirement-checklist");
+			service.requirements.forEach((requirement, index) => {
+				const label = make("label", "reminder-item");
+				const input = document.createElement("input");
+				input.type = "checkbox";
+				input.checked = Boolean(savedRequirements[index]);
+				input.setAttribute("aria-label", requirement);
+				input.addEventListener("change", () => {
+					savedRequirements[index] = input.checked;
+					saveChecklistState(requirementProgressKey, service.id, index, input.checked);
+					updateRequirementProgress();
+				});
+				label.append(input, make("span", "", requirement));
+				requirementList.append(label);
+			});
+			updateRequirementProgress();
 			requirementsPanel.append(requirementList);
 		} else {
 			requirementsPanel.append(make("p", "verification-message", t("service.requirementsUnverified")));
@@ -83,13 +148,23 @@ if (serviceRoot || checklistRoot) {
 		reminderPanel.append(heading);
 		reminderPanel.append(make("p", "reminder-caption", t("service.reminderDescription")));
 
-		const saved = readProgress()[service.id] || [];
-		const doneCount = reminderKeys.reduce((count, _, index) => count + (saved[index] ? 1 : 0), 0);
-		const progressLabel = make("p", "progress-label", t("service.reminderProgress", { done: doneCount, total: reminderKeys.length }));
+		const saved = readProgress(progressKey)[service.id] || [];
+		const progressLabel = make("p", "progress-label");
 		const progress = make("progress", "checklist-progress");
 		progress.max = reminderKeys.length;
-		progress.value = doneCount;
 		progress.setAttribute("aria-label", t("service.progressLabel"));
+		const updateReminderProgress = () => {
+			const doneCount = reminderKeys.reduce(
+				(count, _, index) => count + (saved[index] ? 1 : 0),
+				0
+			);
+			progressLabel.textContent = t("service.reminderProgress", {
+				done: doneCount,
+				total: reminderKeys.length,
+			});
+			progress.value = doneCount;
+		};
+		updateReminderProgress();
 		reminderPanel.append(progressLabel, progress);
 
 		const list = make("div", "reminder-list");
@@ -100,8 +175,9 @@ if (serviceRoot || checklistRoot) {
 			input.setAttribute("aria-label", t(reminderKey));
 			input.checked = Boolean(saved[index]);
 			input.addEventListener("change", () => {
-				saveReminderState(service.id, index, input.checked);
-				renderDetails(service, target);
+				saved[index] = input.checked;
+				saveChecklistState(progressKey, service.id, index, input.checked);
+				updateReminderProgress();
 			});
 			label.append(input, make("span", "", t(reminderKey)));
 			list.append(label);
@@ -240,7 +316,12 @@ if (serviceRoot || checklistRoot) {
 			const params = new URLSearchParams(window.location.search);
 			let preferredId = params.get("service");
 			if (!preferredId) {
-				try { preferredId = localStorage.getItem(selectedKey); } catch { preferredId = null; }
+				try {
+					preferredId = localStorage.getItem(selectedKey);
+				} catch {
+					preferredId = null;
+					showFeedback("service.feedbackSelectionStorage");
+				}
 			}
 			const selected = items.find((service) => service.id === preferredId);
 			if (selected) {
@@ -252,7 +333,12 @@ if (serviceRoot || checklistRoot) {
 		} else {
 			let preferredId = new URLSearchParams(window.location.search).get("service");
 			if (!preferredId) {
-				try { preferredId = localStorage.getItem(selectedKey); } catch { preferredId = null; }
+				try {
+					preferredId = localStorage.getItem(selectedKey);
+				} catch {
+					preferredId = null;
+					showFeedback("service.feedbackSelectionStorage");
+				}
 			}
 			const selected = items.find((service) => service.id === preferredId);
 			if (selected) selectService(selected);

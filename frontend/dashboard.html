@@ -13,7 +13,7 @@
 <body>
   <header class="dashboard-header">
     <a class="brand" href="/" aria-label="LifeGraph home" data-i18n-aria="common.brandHome">
-      <img class="brand-logo" data-brand-logo src="/static/assets/lifegraph-logo.png" alt="" width="34" height="34">
+      <span class="brand-logo" aria-hidden="true">L</span>
       <span>LifeGraph</span>
     </a>
     <nav class="main-nav" aria-label="Main navigation" data-i18n-aria="common.mainNavigation">
@@ -25,7 +25,7 @@
     </nav>
     <div class="header-tools">
       <label class="language-picker"><span class="visually-hidden" data-i18n="language.label">Language</span><select data-language-switch aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option></select></label>
-      <span class="location-label"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg><span data-i18n="dashboard.location">Coimbatore, TN</span></span>
+      <span class="location-label"><span data-i18n="dashboard.location">Demo location · not set</span></span>
       <span class="api-status" data-api-status>Checking API</span>
       <span class="avatar" aria-label="User profile, PB" data-i18n-aria="dashboard.profile">PB</span>
     </div>
@@ -98,7 +98,7 @@
         </div>
         <div class="service-summary">
           <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20h14M7 20V9l5-4 5 4v11M10 12h4M10 15h4"/></svg></span>
-          <span class="service-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.coimbatore">Coimbatore, Tamil Nadu</small><small class="translation-note" data-tamil-only data-i18n="dashboard.serviceTranslationNote">Tamil service-name translations are not verified.</small></span>
+          <span class="service-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.coimbatore">Demo journey · no location selected</small><small class="translation-note" data-tamil-only data-i18n="dashboard.serviceTranslationNote">Tamil service-name translations are not verified.</small></span>
           <span class="in-progress"><i></i><span data-i18n="dashboard.inProgress">In Progress</span></span>
         </div>
         <ol class="progress-steps">
@@ -132,8 +132,8 @@
           <span class="leave-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>
         </div>
         <ul class="leave-list">
-          <li><span class="check-mark">✓</span><span data-i18n="dashboard.requiredDocumentsChecked">Required documents checked</span></li>
-          <li><span class="check-mark">✓</span><span data-i18n="dashboard.centreChosen">Service centre selected</span></li>
+          <li><span class="warning-mark">!</span><span data-i18n="dashboard.requiredDocumentsChecked">Requirements not verified</span></li>
+          <li><span class="warning-mark">!</span><span data-i18n="dashboard.centreChosen">No verified service centre listed</span></li>
           <li><span class="warning-mark">!</span><span data-i18n="dashboard.verifyCopies">Verify original/copy requirement</span></li>
           <li><span class="warning-mark">!</span><span data-i18n="dashboard.checkAvailability">Check service availability</span></li>
         </ul>
@@ -157,38 +157,24 @@
 
     <section class="centres-section" aria-labelledby="centres-title">
       <div class="section-heading centres-heading">
-        <div><p class="section-kicker" data-i18n="dashboard.placesMayHelp">PLACES THAT MAY HELP</p><h2 id="centres-title" data-i18n="dashboard.nearbyCentres">Nearby Service Centres</h2></div>
+        <div><p class="section-kicker" data-i18n="dashboard.placesMayHelp">SERVICE-CENTRE DATA</p><h2 id="centres-title" data-i18n="dashboard.nearbyCentres">Service-centre availability</h2></div>
         <span class="demo-pill" data-i18n="common.demo">DEMO DATA</span>
       </div>
-      <p class="centres-disclaimer" data-i18n="dashboard.centreDisclaimer">Illustrative records only. Locations, service listings, labels and availability are not verified and may not represent real centres.</p>
-      <p class="translation-note dashboard-translation-note" data-tamil-only data-i18n="dashboard.serviceTranslationNote">Tamil service-name translations are not verified.</p>
+      <p class="centres-disclaimer" data-i18n="dashboard.centreDisclaimer">No verified centre listings are available. No address, distance, availability, rating, or route is provided.</p>
       <div class="centre-grid">
-        <article class="centre-card">
-          <div class="centre-card-top"><span class="centre-type" data-i18n="dashboard.centreType">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>1.8 km</span></div>
-          <h3 data-i18n="dashboard.centreCoimbatore">Coimbatore e-Sevai Centre</h3><p class="centre-service" data-i18n="dashboard.residenceCertificate">Residence Certificate</p>
-          <div class="experience-indicator" aria-label="Demo experience data, not rated" data-i18n-aria="dashboard.experienceNotRated"><span data-i18n="dashboard.experience">Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong data-i18n="dashboard.notRated">Not rated</strong></div>
-          <span class="centre-status"><i></i><span data-i18n="dashboard.demoVerified">Demo status: Verified</span></span>
-        </article>
-        <article class="centre-card">
-          <div class="centre-card-top"><span class="centre-type" data-i18n="dashboard.centreType">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>3.1 km</span></div>
-          <h3 data-i18n="dashboard.centreSaibaba">Saibaba Colony e-Sevai</h3><p class="centre-service" data-i18n="services.income.name">Income Certificate</p>
-          <div class="experience-indicator" aria-label="Demo experience data, not rated" data-i18n-aria="dashboard.experienceNotRated"><span data-i18n="dashboard.experience">Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong data-i18n="dashboard.notRated">Not rated</strong></div>
-          <span class="centre-status"><i></i><span data-i18n="dashboard.demoVerified">Demo status: Verified</span></span>
-        </article>
-        <article class="centre-card">
-          <div class="centre-card-top"><span class="centre-type" data-i18n="dashboard.centreType">E-SEVAI CENTRE</span><span class="centre-distance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10Z"/><circle cx="10" cy="8" r="2"/></svg>4.5 km</span></div>
-          <h3 data-i18n="dashboard.centreGandhipuram">Gandhipuram e-Sevai</h3><p class="centre-service" data-i18n="dashboard.communityCertificate">Community Certificate</p>
-          <div class="experience-indicator" aria-label="Demo experience data, not rated" data-i18n-aria="dashboard.experienceNotRated"><span data-i18n="dashboard.experience">Experience</span><span class="experience-dots" aria-hidden="true">·····</span><strong data-i18n="dashboard.notRated">Not rated</strong></div>
-          <span class="centre-status status-limited"><i></i><span data-i18n="dashboard.demoLimited">Demo status: Limited Services</span></span>
+        <article class="centre-card centre-placeholder">
+          <span class="centre-type" data-i18n="dashboard.centreDataStatus">NO VERIFIED LISTINGS</span>
+          <h3 data-i18n="dashboard.noVerifiedCentres">No verified service-centre listings are available.</h3>
+          <p class="centre-service" data-i18n="dashboard.centreDataUnavailable">The sample centre record has been removed because it was fictional.</p>
         </article>
       </div>
     </section>
   </main>
 
   <footer class="dashboard-footer" id="terms">
-    <a class="footer-brand" href="/" id="terms"><img class="brand-logo" data-brand-logo src="/static/assets/lifegraph-logo.png" alt="" width="28" height="28"><span><strong>LifeGraph</strong><small data-i18n="dashboard.footerTagline">Your Guide to Citizen Services</small></span></a>
+    <a class="footer-brand" href="/"><span class="brand-logo" aria-hidden="true">L</span><span><strong>LifeGraph</strong><small data-i18n="dashboard.footerTagline">Your Guide to Citizen Services</small></span></a>
     <nav aria-label="Footer navigation" data-i18n-aria="common.footerNavigation"><a href="#about" data-i18n="common.footerAbout">About</a><a href="#privacy" data-i18n="common.footerPrivacy">Privacy</a><a href="#terms" data-i18n="common.footerTerms">Terms</a><a href="/checklist" data-i18n="common.footerHelp">Help</a></nav>
-    <span class="footer-note" data-i18n="dashboard.footerNote">Demo interface · Coimbatore, TN</span>
+    <span class="footer-note" data-i18n="dashboard.footerNote">Demo interface · no location selected</span>
   </footer>
 </body>
 </html>

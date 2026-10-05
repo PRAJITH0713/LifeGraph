@@ -19,6 +19,33 @@
       "source_url": "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
       "verification_status": "needs_verification",
       "last_verified": null
+    },
+    {
+      "id": "tn-community-certificate",
+      "name": "Community Certificate",
+      "purpose": "DEMO catalogue example only. Confirm that this service is currently offered and verify its scope and application details with the issuing authority.",
+      "requirements": [],
+      "source_url": "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+      "verification_status": "needs_verification",
+      "last_verified": null
+    },
+    {
+      "id": "tn-nativity-certificate",
+      "name": "Nativity Certificate",
+      "purpose": "DEMO catalogue example only. Confirm that this service is currently offered and verify its scope and application details with the issuing authority.",
+      "requirements": [],
+      "source_url": "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+      "verification_status": "needs_verification",
+      "last_verified": null
+    },
+    {
+      "id": "tn-first-graduate-certificate",
+      "name": "First Graduate Certificate",
+      "purpose": "DEMO catalogue example only. Confirm that this service is currently offered and verify its scope and application details with the issuing authority.",
+      "requirements": [],
+      "source_url": "https://www.tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+      "verification_status": "needs_verification",
+      "last_verified": null
     }
   ]
 }

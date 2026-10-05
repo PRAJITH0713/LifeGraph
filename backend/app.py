@@ -8,11 +8,6 @@ from database.db import initialize_database
 from routes.documents import documents_api
 from routes.services import services_api
 
-try:
-    from flask_cors import CORS
-except ImportError:
-    CORS = None
-
 
 def create_app():
     app = Flask(
@@ -25,8 +20,6 @@ def create_app():
     initialize_database(app.config["DATABASE_PATH"])
     app.register_blueprint(services_api)
     app.register_blueprint(documents_api)
-    if CORS is not None:
-        CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     @app.errorhandler(RequestEntityTooLarge)
     def request_too_large(error):

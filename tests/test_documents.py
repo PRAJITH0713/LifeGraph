@@ -6,6 +6,8 @@ import tempfile
 import unittest
 
 from app import create_app
+from werkzeug.datastructures import FileStorage
+from services.document_service import DocumentValidationError, store_document
 
 
 class DocumentUploadTests(unittest.TestCase):
@@ -69,13 +71,25 @@ class DocumentUploadTests(unittest.TestCase):
         self.assertFalse(os.path.exists(self.upload_directory))
 
     def test_rejects_oversized_empty_and_missing_uploads(self):
-        oversized = b"%PDF-" + b"x" * self.max_upload_size
+        self.assertEqual(self.max_upload_size, 10 * 1024 * 1024)
+        self.app.config["MAX_UPLOAD_SIZE_BYTES"] = 32
+        oversized = b"%PDF-" + b"x" * 32
         response = self.client.post(
             "/api/documents/upload",
             data={"document": (io.BytesIO(oversized), "large.pdf")},
             content_type="multipart/form-data",
         )
         self.assertEqual(response.status_code, 400)
+        self.assertIn("10 MB", response.get_json()["error"])
+
+        self.app.config["MAX_CONTENT_LENGTH"] = 1024
+        request_too_large = b"x" * 2048
+        response = self.client.post(
+            "/api/documents/upload",
+            data={"document": (io.BytesIO(request_too_large), "request-too-large.pdf")},
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(response.status_code, 413)
         self.assertIn("10 MB", response.get_json()["error"])
 
         empty_response = self.client.post(
@@ -85,6 +99,21 @@ class DocumentUploadTests(unittest.TestCase):
         )
         self.assertEqual(empty_response.status_code, 400)
         self.assertEqual(self.client.post("/api/documents/upload").status_code, 400)
+
+    def test_document_service_enforces_the_configured_ten_megabyte_limit(self):
+        contents = b"%PDF-" + b"x" * self.max_upload_size
+        uploaded_file = FileStorage(
+            stream=io.BytesIO(contents),
+            filename="large.pdf",
+        )
+
+        with self.assertRaisesRegex(DocumentValidationError, "10 MB"):
+            store_document(
+                uploaded_file,
+                self.upload_directory,
+                self.max_upload_size,
+            )
+        self.assertFalse(os.path.exists(self.upload_directory))
 
 
 if __name__ == "__main__":

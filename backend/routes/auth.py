@@ -21,7 +21,7 @@ from flask import (
     session,
     url_for,
 )
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -41,7 +41,13 @@ def _utc_now():
 def _valid_redirect_target(target):
     if not target or not target.startswith("/") or target.startswith("//"):
         return False
-    return "\\" not in target and "\r" not in target and "\n" not in target
+    return (
+        "\\" not in target
+        and "\r" not in target
+        and "\n" not in target
+        and not target.startswith("/%2f")
+        and not target.startswith("/%5c")
+    )
 
 
 def _password_error(password):
@@ -233,6 +239,7 @@ def authenticate():
 
 
 @auth_api.post("/logout")
+@login_required
 def logout():
     if current_user.is_authenticated:
         logout_user()
@@ -350,9 +357,8 @@ def set_new_password(token):
 
 
 @auth_api.get("/api/auth/me")
+@login_required
 def current_account():
-    if not current_user.is_authenticated:
-        return jsonify({"authenticated": False}), 200
     return jsonify(
         {
             "authenticated": True,

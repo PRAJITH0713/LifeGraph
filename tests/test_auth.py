@@ -57,10 +57,10 @@ class AuthenticationTests(unittest.TestCase):
             follow_redirects=False,
         )
 
-    def _login(self, client, email, password):
+    def _login(self, client, email, password, next_url=None):
         token = self._csrf(client)
         return client.post(
-            "/login",
+            "/login" + (f"?next={next_url}" if next_url else ""),
             data={"csrf_token": token, "email": email, "password": password},
             follow_redirects=False,
         )
@@ -143,16 +143,47 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(invalid.status_code, 401)
         self.assertIn(b"Invalid email or password", invalid.data)
 
-        for path in ("/dashboard", "/checklist", "/static/dashboard.html", "/static/checklist.html"):
+        for path in (
+            "/dashboard",
+            "/service",
+            "/checklist",
+            "/static/dashboard.html",
+            "/static/checklist.html",
+        ):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 302)
                 self.assertIn("/login", response.headers["Location"])
 
-        self.assertEqual(self.client.get("/service").status_code, 200)
-        self.assertEqual(self.client.get("/api/services").status_code, 200)
+        self.assertEqual(self.client.get("/service?service=tn-residence-certificate").status_code, 302)
+        self.assertIn(
+            "/login?next=/service?service%3Dtn-residence-certificate",
+            self.client.get("/service?service=tn-residence-certificate").headers["Location"],
+        )
+        self.assertEqual(self.client.get("/api/services").status_code, 401)
         self.assertEqual(self.client.get("/static/dashboard.html").status_code, 302)
-        self._login(self.client, "person@example.com", "correct horse battery staple")
+        login = self._login(
+            self.client,
+            "person@example.com",
+            "correct horse battery staple",
+            "%2Fservice%3Fservice%3Dtn-residence-certificate",
+        )
+        self.assertEqual(
+            login.headers["Location"],
+            "/service?service=tn-residence-certificate",
+        )
+        self.client.post(
+            "/logout",
+            data={"csrf_token": self._csrf(self.client, "/dashboard")},
+        )
+        unsafe_login = self._login(
+            self.client,
+            "person@example.com",
+            "correct horse battery staple",
+            "https://attacker.example",
+        )
+        self.assertEqual(unsafe_login.headers["Location"], "/dashboard")
+        self.assertEqual(self.client.get("/service").status_code, 200)
         dashboard = self.client.get("/dashboard")
         self.assertEqual(dashboard.status_code, 200)
         self.assertIn(b"Test Person", dashboard.data)
@@ -160,6 +191,28 @@ class AuthenticationTests(unittest.TestCase):
         logout = self.client.post("/logout", data={"csrf_token": token})
         self.assertEqual(logout.status_code, 302)
         self.assertEqual(self.client.get("/dashboard").status_code, 302)
+
+    def test_private_apis_require_authentication(self):
+        checks = (
+            ("GET", "/api/services"),
+            ("GET", "/api/services/tn-residence-certificate"),
+            ("GET", "/api/services/tn-residence-certificate/checklist"),
+            ("GET", "/api/documents"),
+            ("GET", "/api/documents/unknown-id"),
+            ("GET", "/api/checklists/tn-residence-certificate"),
+            ("GET", "/api/auth/me"),
+        )
+        for method, path in checks:
+            with self.subTest(path=path):
+                response = self.client.open(path, method=method)
+                self.assertEqual(response.status_code, 401)
+                self.assertIn("error", response.get_json())
+        upload = self.client.post(
+            "/api/documents/upload",
+            data={"document": (io.BytesIO(b"%PDF-1.7 sample"), "sample.pdf")},
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(upload.status_code, 401)
 
     def test_login_is_rate_limited(self):
         for attempt in range(5):

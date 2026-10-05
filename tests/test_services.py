@@ -19,6 +19,21 @@ class ServiceCatalogueTests(unittest.TestCase):
 
         initialize_database(database_path)
         self.client = self.app.test_client()
+        signup = self.client.get("/signup")
+        token = re.search(
+            r'name="csrf_token" value="([^"]+)"',
+            signup.get_data(as_text=True),
+        ).group(1)
+        self.client.post(
+            "/signup",
+            data={
+                "csrf_token": token,
+                "full_name": "Catalogue Tester",
+                "email": f"catalogue-{id(self)}@example.com",
+                "password": "correct horse battery staple",
+                "confirm_password": "correct horse battery staple",
+            },
+        )
 
     def tearDown(self):
         self.temp_dir.cleanup()
@@ -163,6 +178,22 @@ class ServiceCatalogueTests(unittest.TestCase):
 
         initialize_database(legacy_path)
         self.app.config["DATABASE_PATH"] = legacy_path
+        self.client = self.app.test_client()
+        signup = self.client.get("/signup")
+        token = re.search(
+            r'name="csrf_token" value="([^"]+)"',
+            signup.get_data(as_text=True),
+        ).group(1)
+        self.client.post(
+            "/signup",
+            data={
+                "csrf_token": token,
+                "full_name": "Legacy Catalogue Tester",
+                "email": "legacy-catalogue@example.com",
+                "password": "correct horse battery staple",
+                "confirm_password": "correct horse battery staple",
+            },
+        )
         response = self.client.get("/api/services/tn-residence-certificate")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -251,23 +282,6 @@ class ServiceCatalogueTests(unittest.TestCase):
         checklist_page = self.client.get("/checklist")
         self.assertEqual(service_page.status_code, 200)
         self.assertIn(b"data-service-app", service_page.data)
-        self.assertEqual(checklist_page.status_code, 302)
-        signup_page = self.client.get("/signup")
-        token = re.search(
-            r'name="csrf_token" value="([^"]+)"',
-            signup_page.get_data(as_text=True),
-        ).group(1)
-        self.client.post(
-            "/signup",
-            data={
-                "csrf_token": token,
-                "full_name": "Checklist User",
-                "email": "checklist@example.com",
-                "password": "correct horse battery staple",
-                "confirm_password": "correct horse battery staple",
-            },
-        )
-        checklist_page = self.client.get("/checklist")
         self.assertEqual(checklist_page.status_code, 200)
         self.assertIn(b"data-checklist-app", checklist_page.data)
         service_page.close()

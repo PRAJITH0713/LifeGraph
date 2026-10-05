@@ -32,7 +32,7 @@ The default local URL is `http://127.0.0.1:5000`. SQLite initializes on startup.
 
 ## Authentication and private data
 
-Create an account at `/signup`; log in, log out, and request password resets at `/login`, `/logout`, and `/forgot-password`. The `/dashboard` and `/checklist` pages are private. The service catalogue and its informational details (`/service`, `/api/services/...`) and the demo centre page remain public.
+Create an account at `/signup`; log in, log out, and request password resets at `/login`, `/logout`, and `/forgot-password`. The `/dashboard`, `/service`, and `/checklist` pages are private, as are `/api/services/...`, `/api/documents/...`, `/api/checklists/...`, and `/api/auth/me`. The public pages are the landing page (`/`), authentication/reset pages, and the demo centre information page (`/map`); `/api/health` is a public health check. Unauthenticated page requests go to login with a safe local return target, while private API calls return 401 JSON.
 
 Passwords are hashed with Argon2id. The app uses signed Flask sessions, HttpOnly and SameSite=Lax session cookies, CSRF protection on browser forms and state-changing APIs, and rate limits on signup, login, and reset requests. New accounts require a unique normalized email. A password reset increments an authentication version to invalidate existing sessions.
 
@@ -58,7 +58,7 @@ Checklist progress is stored server-side by authenticated user, service, checkli
 
 The catalogue contains 33 clearly marked demo entries: 16 Tamil Nadu e-Sevai certificate names and 17 “Everyday Government Services” examples. Service links point to department portals; they do not imply every listed task is available through e-Sevai. Requirements remain unverified, so no official document rules are invented. The interface supports English and Tamil; displayed Tamil service-name and description translations are marked unverified.
 
-Public catalogue APIs:
+Authenticated catalogue/workflow APIs:
 
 - `GET /api/services` (optional `q`, at most 100 characters)
 - `GET /api/services/<service_id>`

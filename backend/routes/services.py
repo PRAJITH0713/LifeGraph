@@ -4,6 +4,7 @@ import re
 import sqlite3
 
 from flask import Blueprint, current_app, jsonify, request
+from flask_login import login_required
 
 from services.catalogue_service import get_service, list_services
 from services.checklist_service import build_checklist
@@ -13,6 +14,7 @@ SERVICE_ID_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 
 @services_api.get("")
+@login_required
 def services_index():
 	query = request.args.get("q", "").strip()
 	if len(query) > 100:
@@ -25,6 +27,7 @@ def services_index():
 
 
 @services_api.get("/<service_id>")
+@login_required
 def service_detail(service_id):
 	if len(service_id) > 80 or not SERVICE_ID_PATTERN.fullmatch(service_id):
 		return jsonify({"error": "Invalid service identifier."}), 400
@@ -38,6 +41,7 @@ def service_detail(service_id):
 
 
 @services_api.get("/<service_id>/checklist")
+@login_required
 def service_checklist(service_id):
 	if len(service_id) > 80 or not SERVICE_ID_PATTERN.fullmatch(service_id):
 		return jsonify({"error": "Invalid service identifier."}), 400

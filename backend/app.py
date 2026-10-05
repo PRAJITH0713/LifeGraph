@@ -74,6 +74,8 @@ def create_app():
     def csrf_rejected(error):
         current_app.logger.warning("Rejected request with invalid CSRF token: %s", request.path)
         if request.path.startswith("/api/"):
+            if not current_user.is_authenticated:
+                return jsonify({"error": "Authentication is required."}), 401
             return jsonify({"error": "CSRF validation failed. Reload the page and try again."}), 400
         return "The form expired or could not be verified. Go back, reload the page, and try again.", 400
 
@@ -83,8 +85,8 @@ def create_app():
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "no-referrer")
         if (
-            request.path in {"/dashboard", "/checklist"}
-            or request.path.startswith(("/api/auth/", "/api/documents", "/api/checklists", "/login", "/signup", "/forgot-password", "/reset-password"))
+            request.path in {"/dashboard", "/service", "/checklist"}
+            or request.path.startswith(("/api/auth/", "/api/services", "/api/documents", "/api/checklists", "/login", "/signup", "/forgot-password", "/reset-password"))
         ):
             response.headers["Cache-Control"] = "no-store"
         return response
@@ -114,8 +116,8 @@ def create_app():
         pages = {"dashboard", "service", "checklist", "map"}
         if page not in pages:
             abort(404)
-        if page in {"dashboard", "checklist"} and not current_user.is_authenticated:
-            return redirect(url_for("auth_api.login", next=f"/{page}"))
+        if page in {"dashboard", "service", "checklist"} and not current_user.is_authenticated:
+            return redirect(url_for("auth_api.login", next=request_path()))
         return render_template(f"{page}.html")
 
     return app

@@ -137,9 +137,11 @@ if (serviceRoot || checklistRoot) {
 		})));
 		renderChecklist(service, target);
 
-		const checklistLink = make("a", "button button-primary checklist-link", t("service.openChecklist"));
-		checklistLink.href = `/checklist?service=${encodeURIComponent(service.id)}`;
-		target.append(checklistLink);
+		if (serviceRoot) {
+			const checklistLink = make("a", "button button-primary checklist-link", t("service.openChecklist"));
+			checklistLink.href = `/checklist?service=${encodeURIComponent(service.id)}`;
+			target.append(checklistLink);
+		}
 	};
 
 	const selectService = (service) => {

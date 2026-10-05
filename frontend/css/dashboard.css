@@ -380,6 +380,10 @@ html[lang="ta"] .eyebrow span.eyebrow-copy { width: auto; height: auto; border-r
 .state-available { color: #31724e; background: #eef6ed; }
 .state-action { color: #945d2f; background: #fbf1e6; }
 .privacy-note { margin: 12px 0 0; color: #68796f; font-size: 9px; line-height: 1.6; }
+.upload-guidance, .upload-status { margin: 10px 0 0; color: #68796f; font-size: 8px; line-height: 1.6; }
+.upload-status { min-height: 1.6em; color: #52675a; overflow-wrap: anywhere; }
+.upload-status[data-state="error"] { color: #a33d32; }
+.upload-status[data-state="success"] { color: #34714d; }
 
 .leave-panel {
   padding: 22px 23px;

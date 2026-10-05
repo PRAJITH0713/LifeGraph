@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/static/css/dashboard.css">
   <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
+  <script src="/static/js/document.js" defer></script>
 </head>
 <body>
   <header class="dashboard-header">
@@ -43,7 +44,7 @@
             <span><strong data-i18n="dashboard.startService">Start a Service</strong><small data-i18n="dashboard.startServiceHint">Choose from government services</small></span>
             <span class="shortcut-arrow" aria-hidden="true">↗</span>
           </a>
-          <a href="#your-documents" class="hero-shortcut shortcut-blue">
+          <a href="#your-documents" class="hero-shortcut shortcut-blue" data-document-upload-trigger>
             <span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"/></svg></span>
             <span><strong data-i18n="dashboard.uploadDocument">Upload a Document</strong><small data-i18n="dashboard.uploadDocumentHint">Check what action it may require</small></span>
             <span class="shortcut-arrow" aria-hidden="true">↗</span>
@@ -71,7 +72,7 @@
         <div><p class="section-kicker" data-i18n="dashboard.pickUp">PICK UP WHERE YOU NEED</p><h2 id="quick-actions-title" data-i18n="dashboard.quickActions">Quick actions</h2></div>
       </div>
       <div class="action-grid">
-        <a class="action-card action-upload" href="#your-documents">
+        <a class="action-card action-upload" href="#your-documents" data-document-upload-trigger>
           <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"/></svg></span>
           <span class="action-copy"><strong data-i18n="dashboard.uploadDocument">Upload a Document</strong><small data-i18n="dashboard.uploadDocumentHint">Check what action it may require</small></span>
           <span class="action-go" aria-hidden="true">↗</span>
@@ -119,7 +120,10 @@
           <li><span class="file-icon file-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.addressProof">Address Proof</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-available" data-i18n="dashboard.available">Available</span></li>
           <li><span class="file-icon file-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v6h5M10 14h6M10 17h6"/></svg></span><span class="document-name"><strong data-i18n="dashboard.residenceCertificate">Residence Certificate</strong><small data-i18n="dashboard.demoRecord">Demo record</small></span><span class="document-state state-action" data-i18n="dashboard.actionRequired">Action required</span></li>
         </ul>
-        <p class="privacy-note" data-i18n="dashboard.noDocumentsStored">This is demo data. No actual documents are stored.</p>
+        <p class="privacy-note" data-i18n="dashboard.noDocumentsStored">Demo records only. Uploaded files are listed separately.</p>
+        <input class="visually-hidden" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" data-document-upload-input aria-describedby="document-upload-status">
+        <p class="upload-guidance" data-i18n="dashboard.uploadGuidance">PDF, PNG, JPG, or JPEG · Up to 10 MB</p>
+        <p class="upload-status" id="document-upload-status" data-document-upload-status role="status" aria-live="polite" data-i18n="dashboard.uploadIdle">No document selected.</p>
       </section>
 
       <section class="leave-panel" aria-labelledby="before-leave-title">
@@ -142,12 +146,12 @@
         <h2 id="privacy-title" data-i18n="dashboard.privacyTitle">Your Privacy Matters</h2>
         <p class="privacy-lede" data-i18n="dashboard.privacyLead">Your documents stay under your control.</p>
         <ul class="privacy-list">
-          <li><span>✓</span><span data-i18n="dashboard.documentsCurrentTask">Documents are processed only for the current task</span></li>
-          <li><span>✓</span><span data-i18n="dashboard.originalsNotStored">Original files are not stored by default</span></li>
+          <li><span>✓</span><span data-i18n="dashboard.documentsCurrentTask">Uploaded files are stored in a private server folder, not published.</span></li>
+          <li><span>✓</span><span data-i18n="dashboard.originalsNotStored">Files are not scanned or text-extracted.</span></li>
           <li><span>✓</span><span data-i18n="dashboard.uploadOptional">Uploading documents is optional</span></li>
           <li><span>✓</span><span data-i18n="dashboard.noUploadNeeded">You can use LifeGraph without uploading documents</span></li>
         </ul>
-        <p class="privacy-qualification" data-i18n="dashboard.uploadNotImplemented">Document upload and processing are not implemented in this demo.</p>
+        <p class="privacy-qualification" data-i18n="dashboard.uploadNotImplemented">Uploads remain in the local uploads folder until removed by the operator. No OCR or document analysis is implemented.</p>
       </section>
     </div>
 

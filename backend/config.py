@@ -19,8 +19,11 @@ class Config:
     DEBUG = os.getenv("LIFEGRAPH_DEBUG", "false").lower() == "true"
     HOST = os.getenv("LIFEGRAPH_HOST", "127.0.0.1")
     PORT = int(os.getenv("LIFEGRAPH_PORT", "5000"))
+    MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
+    MAX_CONTENT_LENGTH = MAX_UPLOAD_SIZE_BYTES + 64 * 1024
     DATABASE_PATH = os.getenv(
         "LIFEGRAPH_DATABASE_PATH",
         str(BACKEND_DIR / "instance" / "lifegraph.db"),
     )
     FRONTEND_DIR = PROJECT_DIR / "frontend"
+    UPLOAD_DIRECTORY = PROJECT_DIR / "uploads"

@@ -1,9 +1,11 @@
 """LifeGraph Flask application and page/API entry points."""
 
-from flask import Flask, abort, jsonify, send_from_directory
+from flask import Flask, abort, current_app, jsonify, send_from_directory
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from config import Config
 from database.db import initialize_database
+from routes.documents import documents_api
 from routes.services import services_api
 
 try:
@@ -22,8 +24,14 @@ def create_app():
 
     initialize_database(app.config["DATABASE_PATH"])
     app.register_blueprint(services_api)
+    app.register_blueprint(documents_api)
     if CORS is not None:
         CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    @app.errorhandler(RequestEntityTooLarge)
+    def request_too_large(error):
+        current_app.logger.warning("Rejected oversized request: %s", error.name)
+        return jsonify({"error": "The file exceeds the 10 MB upload limit."}), 413
 
     @app.get("/api/health")
     def health():

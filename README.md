@@ -6,7 +6,7 @@ LifeGraph is a privacy-first citizen service orchestration project. This reposit
 
 - `backend/`: Flask application, environment configuration, API route placeholders, modular service placeholders, SQLite helpers, and demo JSON data.
 - `frontend/`: Static HTML pages, shared CSS, and JavaScript for navigation and API status.
-- `uploads/`: Reserved for future upload handling. No upload endpoint is implemented.
+- `uploads/`: Private local storage for accepted document uploads; ignored by Git and not served as static files.
 - `requirements.txt`: Python dependencies for the backend.
 - `.env.example`: Example local configuration; copy it to `.env` to customize settings.
 
@@ -45,9 +45,9 @@ The server starts at `http://127.0.0.1:5000`. SQLite is initialized automaticall
 
 ## Services and checklists
 
-Open `/service` to search the initial Residence Certificate and Income Certificate catalogue. The entries are DEMO metadata; official proof requirements are empty and marked as needing verification. The linked Tamil Nadu e-Sevai directory is a starting point, not proof that any requirement has been checked. The checklist page tracks only general DEMO planning reminders in this browser's local storage; it does not upload or store personal documents.
+Open `/service` to search the initial Residence Certificate and Income Certificate catalogue. The entries are DEMO metadata; official proof requirements are empty and marked as needing verification. The linked Tamil Nadu e-Sevai directory is a starting point, not proof that any requirement has been checked. The checklist page tracks only general DEMO planning reminders in browser local storage, keyed by service ID, and restores the selected service across refreshes.
 
-Catalogue endpoints are `GET /api/services`, `GET /api/services/<service_id>`, and `GET /api/services/<service_id>/checklist`. Search uses the optional `q` parameter and accepts up to 100 characters.
+Catalogue endpoints are `GET /api/services`, `GET /api/services/<service_id>`, and `GET /api/services/<service_id>/checklist`. Search uses the optional `q` parameter and accepts up to 100 characters. `POST /api/documents/upload` accepts one PDF, PNG, JPG, or JPEG file up to 10 MB in the `document` multipart field. Uploads are signature-checked and stored under the ignored local `uploads/` directory using generated filenames; they are not downloadable through the app and are not scanned, OCR-processed, or otherwise analyzed. Uploaded files stay on disk until an operator removes them.
 
 ## Language support
 

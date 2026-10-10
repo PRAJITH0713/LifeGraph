@@ -18,9 +18,16 @@
   <main class="page-main">
     <p class="eyebrow" data-i18n="map.eyebrow">WORKSPACE / CENTRE FINDER</p>
     <h1 class="page-title" data-i18n="map.heading">Find a service centre</h1>
-    <p class="lede" data-i18n="map.lede">Centre search and mapping are not connected yet.</p>
-    <section class="placeholder-panel"><span class="demo-label" data-i18n="map.demoLocation">DEMO LOCATION ONLY</span><h2 data-i18n="map.unavailable">Map not available</h2><p data-i18n="map.disclaimer">The sample centre in the data file is fictional and must not be used for navigation. No map or routing provider is connected.</p><a class="text-link" href="/"><span data-i18n="map.backStart">Back to start</span> <span aria-hidden="true">→</span></a></section>
+    <p class="lede" data-i18n="map.lede">LifeGraph does not yet have a verified, service-specific centre directory.</p>
+    <section class="placeholder-panel" aria-labelledby="centre-status">
+      <span class="demo-label" data-i18n="map.demoLocation">CENTRE SEARCH NOT CONNECTED</span>
+      <h2 id="centre-status" data-i18n="map.unavailable">No verified centre results</h2>
+      <p data-i18n="map.disclaimer">No verified centre listings, addresses, coordinates, or opening hours are available in LifeGraph. The official e-Sevai portal instructs users to visit a nearby centre, but LifeGraph has not confirmed a public centre listing or API. Other catalogue services use separate authorities and centre networks.</p>
+      <p data-i18n="map.configuration">A current, approved source for each supported service network is needed before LifeGraph can offer location search. No search, map, directions, or centre results are provided until then.</p>
+      <p><a class="text-link" href="https://www.tnesevai.tn.gov.in/" target="_blank" rel="noopener noreferrer" data-i18n="map.esevaiPortal">Visit the official e-Sevai portal (external)</a></p>
+      <a class="text-link" href="/"><span data-i18n="map.backStart">Back to start</span> <span aria-hidden="true">→</span></a>
+    </section>
   </main>
-  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="map.footerWorkspace">Starter workspace</span></span><span data-i18n="map.footerDemo">Demo build · No official service data</span></footer>
+  <footer class="site-footer"><span>LifeGraph <span class="footer-separator">/</span> <span data-i18n="map.footerWorkspace">Starter workspace</span></span><span data-i18n="map.footerDemo">No verified centre listings</span></footer>
 </body>
 </html>

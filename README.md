@@ -54,6 +54,8 @@ New uploads are limited to PDF, PNG, JPG, or JPEG files and 10 MB, validated aga
 
 Checklist progress is stored server-side by authenticated user, service, checklist type, and item index. The selected catalogue service and language preference remain in browser storage.
 
+The Centre Finder is an unavailable-state page, not a functioning search or map. The official e-Sevai portal describes visiting a nearby e-Sevai centre, but LifeGraph has not verified a public centre directory/API for it. The remaining catalogue services belong to separate authorities and may use separate centre networks. A current, approved source and coverage details are required per supported network before adding centre search; no centre names, addresses, coordinates, hours, maps, or directions are fabricated.
+
 ## Services, language, and APIs
 
 The catalogue contains 33 clearly marked demo entries: 16 Tamil Nadu e-Sevai certificate names and 17 “Everyday Government Services” examples. Service links point to department portals; they do not imply every listed task is available through e-Sevai. Requirements remain unverified, so no official document rules are invented. The interface supports English and Tamil; displayed Tamil service-name and description translations are marked unverified.

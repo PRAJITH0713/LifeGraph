@@ -6,8 +6,8 @@ import re
 import tempfile
 import unittest
 
+import support  # noqa: F401
 from app import create_app
-from database.db import initialize_database
 from werkzeug.datastructures import FileStorage
 from services.document_service import DocumentValidationError, store_document
 
@@ -15,16 +15,16 @@ from services.document_service import DocumentValidationError, store_document
 class DocumentUploadTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.app = create_app()
         self.upload_directory = os.path.join(self.temp_dir.name, "uploads")
         database_path = os.path.join(self.temp_dir.name, "test.db")
-        self.app.config.update(
-            TESTING=True,
-            DATABASE_PATH=database_path,
-            UPLOAD_DIRECTORY=self.upload_directory,
-            WTF_CSRF_ENABLED=False,
+        self.app = create_app(
+            {
+                "TESTING": True,
+                "DATABASE_PATH": database_path,
+                "UPLOAD_DIRECTORY": self.upload_directory,
+                "WTF_CSRF_ENABLED": False,
+            }
         )
-        initialize_database(database_path)
         self.client = self.app.test_client()
         self.max_upload_size = self.app.config["MAX_UPLOAD_SIZE_BYTES"]
         signup = self.client.get("/signup")

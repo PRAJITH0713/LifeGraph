@@ -19,7 +19,7 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 
 
-def create_app():
+def create_app(config_overrides=None):
     app = Flask(
         __name__,
         static_folder=str(Config.FRONTEND_DIR),
@@ -27,6 +27,8 @@ def create_app():
         template_folder=str(Config.FRONTEND_DIR),
     )
     app.config.from_object(Config)
+    if config_overrides is not None:
+        app.config.update(config_overrides)
 
     if _is_within(app.config["UPLOAD_DIRECTORY"], app.static_folder):
         raise ValueError("Private document storage must be outside the public static directory.")

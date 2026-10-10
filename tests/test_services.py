@@ -6,6 +6,7 @@ import sqlite3
 import tempfile
 import unittest
 
+import support  # noqa: F401
 from app import create_app
 
 
@@ -13,11 +14,12 @@ class ServiceCatalogueTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         database_path = os.path.join(self.temp_dir.name, "test.db")
-        self.app = create_app()
-        self.app.config.update(TESTING=True, DATABASE_PATH=database_path)
-        from database.db import initialize_database
-
-        initialize_database(database_path)
+        self.app = create_app(
+            {
+                "TESTING": True,
+                "DATABASE_PATH": database_path,
+            }
+        )
         self.client = self.app.test_client()
         signup = self.client.get("/signup")
         token = re.search(

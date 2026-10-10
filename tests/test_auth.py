@@ -11,6 +11,8 @@ from contextlib import closing
 from unittest.mock import patch
 
 from argon2 import extract_parameters
+
+import support  # noqa: F401
 from app import create_app
 from database.db import initialize_database
 
@@ -20,15 +22,16 @@ class AuthenticationTests(unittest.TestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.database_path = os.path.join(self.temp_dir.name, "lifegraph.db")
         self.upload_directory = os.path.join(self.temp_dir.name, "private-files")
-        self.app = create_app()
-        self.app.config.update(
-            TESTING=True,
-            DATABASE_PATH=self.database_path,
-            UPLOAD_DIRECTORY=self.upload_directory,
-            WTF_CSRF_ENABLED=True,
-            RATELIMIT_STORAGE_URI="memory://",
+        self.app = create_app(
+            {
+                "TESTING": True,
+                "DATABASE_PATH": self.database_path,
+                "UPLOAD_DIRECTORY": self.upload_directory,
+                "WTF_CSRF_ENABLED": True,
+                "RATELIMIT_STORAGE_URI": "memory://",
+                "SESSION_COOKIE_SECURE": True,
+            }
         )
-        initialize_database(self.database_path)
         self.client = self.app.test_client()
 
     def tearDown(self):
@@ -154,6 +157,7 @@ class AuthenticationTests(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 302)
                 self.assertIn("/login", response.headers["Location"])
+        self.assertEqual(self.client.get("/static/service.html").status_code, 404)
 
         self.assertEqual(self.client.get("/service?service=tn-residence-certificate").status_code, 302)
         self.assertIn(
@@ -191,6 +195,7 @@ class AuthenticationTests(unittest.TestCase):
         logout = self.client.post("/logout", data={"csrf_token": token})
         self.assertEqual(logout.status_code, 302)
         self.assertEqual(self.client.get("/dashboard").status_code, 302)
+        self.assertEqual(self.client.get("/api/auth/me").status_code, 401)
 
     def test_private_apis_require_authentication(self):
         checks = (
@@ -201,6 +206,8 @@ class AuthenticationTests(unittest.TestCase):
             ("GET", "/api/documents/unknown-id"),
             ("GET", "/api/checklists/tn-residence-certificate"),
             ("GET", "/api/auth/me"),
+            ("DELETE", "/api/documents/unknown-id"),
+            ("PUT", "/api/checklists/tn-residence-certificate"),
         )
         for method, path in checks:
             with self.subTest(path=path):
@@ -266,6 +273,13 @@ class AuthenticationTests(unittest.TestCase):
             404,
         )
         self.assertEqual(
+            bob.put(
+                f"/api/documents/{alice_document['id']}",
+                headers={"X-CSRFToken": self._csrf(bob, "/dashboard")},
+            ).status_code,
+            405,
+        )
+        self.assertEqual(
             bob.delete(
                 f"/api/documents/{alice_document['id']}",
                 headers={"X-CSRFToken": self._csrf(bob, "/dashboard")},
@@ -296,6 +310,19 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(updated.status_code, 200)
         self.assertEqual(alice.get(progress_path).get_json()["reminders"], [True, False])
         self.assertEqual(bob.get(progress_path).get_json()["reminders"], [False, False])
+        bob_update = bob.put(
+            progress_path,
+            json={
+                "kind": "reminder",
+                "index": 1,
+                "checked": True,
+                "user_id": "alice@example.com",
+            },
+            headers={"X-CSRFToken": self._csrf(bob, "/checklist")},
+        )
+        self.assertEqual(bob_update.status_code, 200)
+        self.assertEqual(alice.get(progress_path).get_json()["reminders"], [True, False])
+        self.assertEqual(bob.get(progress_path).get_json()["reminders"], [False, True])
         malformed = alice.put(
             progress_path,
             json={"kind": {}, "index": 0, "checked": True},

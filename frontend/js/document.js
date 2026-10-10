@@ -231,4 +231,5 @@ if (uploadInput && uploadStatus && uploadButton) {
   });
 
   setUploadButton(false);
+  loadDocuments();
 }

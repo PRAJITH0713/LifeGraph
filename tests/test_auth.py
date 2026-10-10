@@ -14,7 +14,7 @@ from argon2 import extract_parameters
 
 import support  # noqa: F401
 from app import create_app
-from database.db import initialize_database
+from database.db import get_connection, initialize_database
 
 
 class AuthenticationTests(unittest.TestCase):
@@ -84,6 +84,7 @@ class AuthenticationTests(unittest.TestCase):
         cookie = response.headers["Set-Cookie"]
         self.assertIn("HttpOnly", cookie)
         self.assertIn("SameSite=Lax", cookie)
+        self.assertIn("Secure", cookie)
 
         with closing(sqlite3.connect(self.database_path)) as connection:
             password_hash = connection.execute(
@@ -196,6 +197,13 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(logout.status_code, 302)
         self.assertEqual(self.client.get("/dashboard").status_code, 302)
         self.assertEqual(self.client.get("/api/auth/me").status_code, 401)
+        for path in (
+            "/api/documents",
+            "/api/checklists/tn-residence-certificate",
+            "/api/services",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(self.client.get(path).status_code, 401)
 
     def test_private_apis_require_authentication(self):
         checks = (
@@ -247,6 +255,8 @@ class AuthenticationTests(unittest.TestCase):
         bob = self.app.test_client()
         self._signup(alice, "alice@example.com", "Alice")
         self._signup(bob, "bob@example.com", "Bob")
+        self.assertEqual(alice.get("/api/auth/me").get_json()["email"], "alice@example.com")
+        self.assertEqual(bob.get("/api/auth/me").get_json()["email"], "bob@example.com")
 
         alice_upload = self._upload(alice, "alice.pdf", b"%PDF-1.7 alice")
         bob_upload = self._upload(bob, "bob.pdf", b"%PDF-1.7 bob")
@@ -272,6 +282,8 @@ class AuthenticationTests(unittest.TestCase):
             bob.get(f"/api/documents/{alice_document['id']}").status_code,
             404,
         )
+        bob_file_list = bob.get("/api/documents").get_json()["documents"]
+        self.assertNotIn(alice_document["id"], {item["id"] for item in bob_file_list})
         self.assertEqual(
             bob.put(
                 f"/api/documents/{alice_document['id']}",
@@ -289,6 +301,10 @@ class AuthenticationTests(unittest.TestCase):
         owner_can_still_read = alice.get(f"/api/documents/{alice_document['id']}")
         self.assertEqual(owner_can_still_read.status_code, 200)
         owner_can_still_read.close()
+        bob_file = bob.get(f"/api/documents/{bob_document['id']}")
+        self.assertEqual(bob_file.status_code, 200)
+        self.assertEqual(bob_file.data, b"%PDF-1.7 bob")
+        bob_file.close()
 
         service_id = "tn-residence-certificate"
         progress_path = f"/api/checklists/{service_id}"
@@ -297,13 +313,18 @@ class AuthenticationTests(unittest.TestCase):
             [False, False],
         )
         update_token = self._csrf(alice, "/checklist")
+        with get_connection(self.database_path) as connection:
+            alice_user_id = connection.execute(
+                "SELECT id FROM users WHERE email = ?",
+                ("alice@example.com",),
+            ).fetchone()["id"]
         updated = alice.put(
             progress_path,
             json={
                 "kind": "reminder",
                 "index": 0,
                 "checked": True,
-                "user_id": bob.get("/api/auth/me").get_json()["email"],
+                "user_id": alice_user_id,
             },
             headers={"X-CSRFToken": update_token},
         )
@@ -316,7 +337,7 @@ class AuthenticationTests(unittest.TestCase):
                 "kind": "reminder",
                 "index": 1,
                 "checked": True,
-                "user_id": "alice@example.com",
+                "user_id": alice_user_id,
             },
             headers={"X-CSRFToken": self._csrf(bob, "/checklist")},
         )
@@ -338,6 +359,75 @@ class AuthenticationTests(unittest.TestCase):
             200,
         )
         self.assertEqual(alice.get(f"/api/documents/{alice_document['id']}").status_code, 404)
+
+    def test_checklist_progress_can_be_toggled_and_persists_after_relogin(self):
+        self._signup(self.client, "checklist-owner@example.com", "Checklist Owner")
+        service_id = "tn-residence-certificate"
+        progress_path = f"/api/checklists/{service_id}"
+
+        with get_connection(self.database_path) as connection:
+            connection.execute(
+                """
+                UPDATE services
+                SET requirements_json = ?, requirement_verification_status = 'needs_verification'
+                WHERE id = ?
+                """,
+                ('["Synthetic checklist item"]', service_id),
+            )
+
+        initial = self.client.get(progress_path)
+        self.assertEqual(initial.status_code, 200)
+        self.assertEqual(initial.get_json()["requirements"], [False])
+        self.assertEqual(initial.get_json()["reminders"], [False, False])
+
+        csrf_token = self._csrf(self.client, "/checklist")
+        completed = self.client.put(
+            progress_path,
+            json={"kind": "requirement", "index": 0, "checked": True},
+            headers={"X-CSRFToken": csrf_token},
+        )
+        self.assertEqual(completed.status_code, 200)
+        self.assertEqual(
+            self.client.get(progress_path).get_json()["requirements"],
+            [True],
+        )
+
+        unchecked = self.client.put(
+            progress_path,
+            json={"kind": "requirement", "index": 0, "checked": False},
+            headers={"X-CSRFToken": csrf_token},
+        )
+        self.assertEqual(unchecked.status_code, 200)
+        self.assertEqual(
+            self.client.get(progress_path).get_json()["requirements"],
+            [False],
+        )
+
+        reminder = self.client.put(
+            progress_path,
+            json={"kind": "reminder", "index": 1, "checked": True},
+            headers={"X-CSRFToken": csrf_token},
+        )
+        self.assertEqual(reminder.status_code, 200)
+        self.assertEqual(
+            self.client.post(
+                "/logout",
+                data={"csrf_token": self._csrf(self.client, "/dashboard")},
+            ).status_code,
+            302,
+        )
+        self.assertEqual(self.client.get(progress_path).status_code, 401)
+
+        login = self._login(
+            self.client,
+            "checklist-owner@example.com",
+            "correct horse battery staple",
+        )
+        self.assertEqual(login.status_code, 302)
+        persisted = self.client.get(progress_path)
+        self.assertEqual(persisted.status_code, 200)
+        self.assertEqual(persisted.get_json()["requirements"], [False])
+        self.assertEqual(persisted.get_json()["reminders"], [False, True])
 
     def test_password_reset_uses_one_time_email_token_and_revokes_sessions(self):
         self.app.config.update(

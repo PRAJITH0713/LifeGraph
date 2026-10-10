@@ -1,10 +1,12 @@
 """Focused tests for the initial service catalogue API."""
 
+import json
 import os
 import re
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 
 import support  # noqa: F401
 from app import create_app
@@ -13,11 +15,11 @@ from app import create_app
 class ServiceCatalogueTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        database_path = os.path.join(self.temp_dir.name, "test.db")
+        self.database_path = os.path.join(self.temp_dir.name, "test.db")
         self.app = create_app(
             {
                 "TESTING": True,
-                "DATABASE_PATH": database_path,
+                "DATABASE_PATH": self.database_path,
             }
         )
         self.client = self.app.test_client()
@@ -248,6 +250,56 @@ class ServiceCatalogueTests(unittest.TestCase):
                     checklist.get_json()["official_portal_url"],
                     service["official_portal_url"],
                 )
+
+    def test_each_catalogue_entry_maps_to_its_own_detail_and_checklist(self):
+        synthetic_requirements = {
+            "tn-residence-certificate": ["Synthetic residence checklist item"],
+            "tn-income-certificate": ["Synthetic income checklist item"],
+        }
+        with closing(sqlite3.connect(self.database_path)) as connection, connection:
+            for service_id, requirements in synthetic_requirements.items():
+                connection.execute(
+                    """
+                    UPDATE services
+                    SET requirements_json = ?, requirement_verification_status = 'needs_verification'
+                    WHERE id = ?
+                    """,
+                    (json.dumps(requirements), service_id),
+                )
+
+        response = self.client.get("/api/services")
+        self.assertEqual(response.status_code, 200)
+        services = response.get_json()["services"]
+        self.assertEqual(len(services), 33)
+        for listed_service in services:
+            with self.subTest(service_id=listed_service["id"]):
+                detail_response = self.client.get(
+                    f"/api/services/{listed_service['id']}"
+                )
+                checklist_response = self.client.get(
+                    f"/api/services/{listed_service['id']}/checklist"
+                )
+                self.assertEqual(detail_response.status_code, 200)
+                self.assertEqual(checklist_response.status_code, 200)
+                detail = detail_response.get_json()
+                checklist = checklist_response.get_json()
+                self.assertEqual(detail["id"], listed_service["id"])
+                self.assertEqual(detail["name"], listed_service["name"])
+                self.assertEqual(checklist["service_id"], listed_service["id"])
+                self.assertEqual(checklist["requirements"], detail["requirements"])
+
+        self.assertEqual(
+            self.client.get(
+                "/api/services/tn-residence-certificate/checklist"
+            ).get_json()["requirements"],
+            synthetic_requirements["tn-residence-certificate"],
+        )
+        self.assertEqual(
+            self.client.get(
+                "/api/services/tn-income-certificate/checklist"
+            ).get_json()["requirements"],
+            synthetic_requirements["tn-income-certificate"],
+        )
 
     def test_everyday_services_are_separate_and_have_correct_sources(self):
         services = self.client.get("/api/services").get_json()["services"]

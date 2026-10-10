@@ -3,11 +3,15 @@
 import io
 import os
 import re
+import sqlite3
 import tempfile
 import unittest
+from contextlib import contextmanager
+from unittest.mock import patch
 
 import support  # noqa: F401
 from app import create_app
+from database.db import get_connection
 from werkzeug.datastructures import FileStorage
 from services.document_service import DocumentValidationError, store_document
 
@@ -65,12 +69,14 @@ class DocumentUploadTests(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, 201)
                 result = response.get_json()
-                expected_name = os.path.basename(filename)
+                expected_name = os.path.basename(filename.replace("\\", "/"))
                 self.assertEqual(result["filename"], expected_name)
                 self.assertEqual(result["size"], len(contents))
                 self.assertIn("No text extraction", result["message"])
                 stored_files = os.listdir(self.upload_directory)
                 self.assertEqual(len(stored_files), 1)
+                self.assertNotIn("..", stored_files[0])
+                self.assertNotEqual(stored_files[0], filename)
                 with open(os.path.join(self.upload_directory, stored_files[0]), "rb") as stored_file:
                     self.assertEqual(stored_file.read(), contents)
                 self.assertEqual(
@@ -92,6 +98,7 @@ class DocumentUploadTests(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, 400)
                 self.assertIn("error", response.get_json())
+                self.assertTrue(response.get_json()["error"])
         self.assertFalse(os.path.exists(self.upload_directory))
 
     def test_rejects_oversized_empty_and_missing_uploads(self):
@@ -122,7 +129,85 @@ class DocumentUploadTests(unittest.TestCase):
             content_type="multipart/form-data",
         )
         self.assertEqual(empty_response.status_code, 400)
+        self.assertIn("empty", empty_response.get_json()["error"].lower())
         self.assertEqual(self.client.post("/api/documents/upload").status_code, 400)
+
+    def test_owner_can_list_download_and_delete_uploaded_document(self):
+        contents = b"%PDF-1.7 synthetic document lifecycle"
+        response = self.client.post(
+            "/api/documents/upload",
+            data={"document": (io.BytesIO(contents), r"..\..\private\sample.pdf")},
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(response.status_code, 201)
+        uploaded = response.get_json()
+
+        listed = self.client.get("/api/documents")
+        self.assertEqual(listed.status_code, 200)
+        listed_documents = listed.get_json()["documents"]
+        self.assertEqual(len(listed_documents), 1)
+        self.assertEqual(listed_documents[0]["id"], uploaded["id"])
+        self.assertEqual(listed_documents[0]["filename"], "sample.pdf")
+        self.assertEqual(listed_documents[0]["size"], len(contents))
+        self.assertTrue(listed_documents[0]["created_at"])
+
+        download = self.client.get(f"/api/documents/{uploaded['id']}")
+        self.assertEqual(download.status_code, 200)
+        self.assertEqual(download.data, contents)
+        self.assertIn("attachment", download.headers["Content-Disposition"].lower())
+        self.assertIn("sample.pdf", download.headers["Content-Disposition"])
+        download.close()
+
+        stored_files = os.listdir(self.upload_directory)
+        self.assertEqual(len(stored_files), 1)
+        stored_path = os.path.join(self.upload_directory, stored_files[0])
+        self.assertTrue(os.path.isfile(stored_path))
+        with get_connection(self.app.config["DATABASE_PATH"]) as connection:
+            record = connection.execute(
+                "SELECT user_id, stored_filename FROM documents WHERE id = ?",
+                (uploaded["id"],),
+            ).fetchone()
+            owner = connection.execute(
+                "SELECT id FROM users WHERE email = ?",
+                ("documents@example.com",),
+            ).fetchone()
+            self.assertIsNotNone(record)
+            self.assertIsNotNone(owner)
+            self.assertEqual(record["user_id"], owner["id"])
+            self.assertEqual(record["stored_filename"], stored_files[0])
+        self.assertEqual(
+            self.client.get(f"/static/{stored_files[0]}").status_code,
+            404,
+        )
+
+        deleted = self.client.delete(f"/api/documents/{uploaded['id']}")
+        self.assertEqual(deleted.status_code, 200)
+        self.assertEqual(deleted.get_json(), {"deleted": True})
+        self.assertEqual(self.client.get("/api/documents").get_json()["documents"], [])
+        self.assertEqual(self.client.get(f"/api/documents/{uploaded['id']}").status_code, 404)
+        self.assertFalse(os.path.exists(stored_path))
+
+    def test_database_failure_after_file_write_cleans_up_upload(self):
+        @contextmanager
+        def fail_database(_database_path):
+            raise sqlite3.OperationalError("synthetic database failure")
+            yield
+
+        with patch("routes.documents.get_connection", side_effect=fail_database):
+            response = self.client.post(
+                "/api/documents/upload",
+                data={"document": (io.BytesIO(b"%PDF-1.7 synthetic"), "sample.pdf")},
+                content_type="multipart/form-data",
+            )
+
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("could not be stored", response.get_json()["error"].lower())
+        self.assertEqual(os.listdir(self.upload_directory), [])
+        with get_connection(self.app.config["DATABASE_PATH"]) as connection:
+            self.assertEqual(
+                connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0],
+                0,
+            )
 
     def test_document_service_enforces_the_configured_ten_megabyte_limit(self):
         contents = b"%PDF-" + b"x" * self.max_upload_size

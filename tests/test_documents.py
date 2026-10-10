@@ -98,6 +98,8 @@ class DocumentUploadTests(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, 400)
                 self.assertIn("error", response.get_json())
+                expected_code = "unsupported_type" if filename.endswith(".txt") else "invalid_contents"
+                self.assertEqual(response.get_json()["error_code"], expected_code)
                 self.assertTrue(response.get_json()["error"])
         self.assertFalse(os.path.exists(self.upload_directory))
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>LifeGraph | Account</title>
+  <title data-i18n="auth.accountTitle">LifeGraph | Account</title>
   <link rel="stylesheet" href="/static/css/style.css">
   <script src="/static/js/locales.js" defer></script>
   <script src="/static/js/app.js" defer></script>
@@ -75,11 +75,17 @@
         </form>
       {% endif %}
       {% if error %}
-        <p class="auth-message auth-error" role="alert">{{ error }}</p>
+        <p class="auth-message auth-error" role="alert"{% if error_key %} data-i18n="{{ error_key }}"{% endif %}>{{ error }}</p>
       {% endif %}
       {% with messages = get_flashed_messages() %}
         {% for message in messages %}
-          <p class="auth-message" role="status">{{ message }}</p>
+          {% if message == "If an account matches that email and email delivery is configured, a password reset link will be sent." %}
+            <p class="auth-message" role="status" data-i18n="auth.resetNotice">{{ message }}</p>
+          {% elif message == "Your password was changed. Please log in." %}
+            <p class="auth-message" role="status" data-i18n="auth.passwordChanged">{{ message }}</p>
+          {% else %}
+            <p class="auth-message" role="status">{{ message }}</p>
+          {% endif %}
         {% endfor %}
       {% endwith %}
     </section>

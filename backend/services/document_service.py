@@ -17,27 +17,38 @@ ALLOWED_SIGNATURES = {
 class DocumentValidationError(ValueError):
     """An uploaded file does not meet the supported document constraints."""
 
+    def __init__(self, message, code):
+        super().__init__(message)
+        self.code = code
+
 
 def store_document(uploaded_file: FileStorage, upload_directory: str | Path, max_size: int):
     filename = Path((uploaded_file.filename or "").replace("\\", "/")).name.strip()
     if not filename:
-        raise DocumentValidationError("Choose a file with a valid filename.")
+        raise DocumentValidationError("Choose a file with a valid filename.", "invalid_filename")
     if len(filename) > 255 or any(ord(character) < 32 for character in filename):
-        raise DocumentValidationError("Choose a filename with 255 characters or fewer.")
+        raise DocumentValidationError(
+            "Choose a filename with 255 characters or fewer.",
+            "invalid_filename",
+        )
 
     extension = Path(filename).suffix.lower()
     signatures = ALLOWED_SIGNATURES.get(extension)
     if signatures is None:
-        raise DocumentValidationError("Only PDF, PNG, JPG, and JPEG files are supported.")
+        raise DocumentValidationError(
+            "Only PDF, PNG, JPG, and JPEG files are supported.",
+            "unsupported_type",
+        )
 
     content = uploaded_file.stream.read(max_size + 1)
     if len(content) > max_size:
-        raise DocumentValidationError("The file exceeds the 10 MB upload limit.")
+        raise DocumentValidationError("The file exceeds the 10 MB upload limit.", "too_large")
     if not content:
-        raise DocumentValidationError("The selected file is empty.")
+        raise DocumentValidationError("The selected file is empty.", "empty_file")
     if not any(content.startswith(signature) for signature in signatures):
         raise DocumentValidationError(
-            "The file contents do not match the selected PDF, PNG, or JPEG file type."
+            "The file contents do not match the selected PDF, PNG, or JPEG file type.",
+            "invalid_contents",
         )
 
     destination = Path(upload_directory)

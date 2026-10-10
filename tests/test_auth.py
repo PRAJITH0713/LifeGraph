@@ -146,6 +146,7 @@ class AuthenticationTests(unittest.TestCase):
         invalid = self._login(self.client, "person@example.com", "incorrect")
         self.assertEqual(invalid.status_code, 401)
         self.assertIn(b"Invalid email or password", invalid.data)
+        self.assertIn(b'data-i18n="auth.errorInvalidCredentials"', invalid.data)
 
         for path in (
             "/dashboard",

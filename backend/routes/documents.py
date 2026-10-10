@@ -13,13 +13,29 @@ from services.document_service import DocumentValidationError, store_document
 
 documents_api = Blueprint("documents_api", __name__, url_prefix="/api/documents")
 
+DOCUMENT_ERROR_KEYS = {
+    "invalid_filename": "The selected filename is not valid.",
+    "unsupported_type": "Only PDF, PNG, JPG, and JPEG files are supported.",
+    "too_large": "The file exceeds the 10 MB upload limit.",
+    "empty_file": "The selected file is empty.",
+    "invalid_contents": "The file contents do not match the selected file type.",
+    "missing_file": "Select a document to upload.",
+    "store_failed": "The document could not be stored. Please try again.",
+    "not_found": "Document not found.",
+    "delete_failed": "The document could not be removed.",
+}
+
+
+def _document_error(code, status):
+    return jsonify({"error": DOCUMENT_ERROR_KEYS[code], "error_code": code}), status
+
 
 @documents_api.post("/upload")
 @login_required
 def upload_document():
     uploaded_file = request.files.get("document")
     if uploaded_file is None:
-        return jsonify({"error": "Select a document to upload."}), 400
+        return _document_error("missing_file", 400)
 
     try:
         result = store_document(
@@ -45,7 +61,7 @@ def upload_document():
                 ),
             )
     except DocumentValidationError as error:
-        return jsonify({"error": str(error)}), 400
+        return jsonify({"error": str(error), "error_code": error.code}), 400
     except (OSError, sqlite3.Error):
         if "result" in locals():
             try:
@@ -53,7 +69,7 @@ def upload_document():
             except OSError:
                 current_app.logger.exception("Could not clean up an unregistered uploaded file.")
         current_app.logger.exception("Could not store uploaded document.")
-        return jsonify({"error": "The document could not be stored. Please try again."}), 500
+        return _document_error("store_failed", 500)
 
     return jsonify(
         {
@@ -106,7 +122,7 @@ def download_document(document_id):
             (document_id, current_user.get_id()),
         ).fetchone()
     if row is None:
-        return jsonify({"error": "Document not found."}), 404
+        return _document_error("not_found", 404)
     return send_from_directory(
         current_app.config["UPLOAD_DIRECTORY"],
         row["stored_filename"],
@@ -128,13 +144,13 @@ def delete_document(document_id):
             (document_id, current_user.get_id()),
         ).fetchone()
         if row is None:
-            return jsonify({"error": "Document not found."}), 404
+            return _document_error("not_found", 404)
         file_path = Path(current_app.config["UPLOAD_DIRECTORY"]) / row["stored_filename"]
         try:
             file_path.unlink(missing_ok=True)
         except OSError:
             current_app.logger.exception("Could not remove uploaded document.")
-            return jsonify({"error": "The document could not be removed."}), 500
+            return _document_error("delete_failed", 500)
         connection.execute(
             "DELETE FROM documents WHERE id = ? AND user_id = ?",
             (document_id, current_user.get_id()),

@@ -8,15 +8,31 @@ if (uploadInput && uploadStatus && uploadButton) {
   const maxUploadSize = 10 * 1024 * 1024;
   const supportedExtensions = new Set(["pdf", "png", "jpg", "jpeg"]);
   const translate = (key, values) => window.LifeGraphI18n?.t(key, values) || key;
+  const uploadErrorKeys = {
+    invalid_filename: "dashboard.documentErrorInvalidFilename",
+    unsupported_type: "dashboard.documentErrorUnsupportedType",
+    too_large: "dashboard.documentErrorTooLarge",
+    empty_file: "dashboard.documentErrorEmptyFile",
+    invalid_contents: "dashboard.documentErrorInvalidContents",
+    missing_file: "dashboard.documentErrorMissingFile",
+    store_failed: "dashboard.documentErrorStoreFailed",
+  };
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
   let uploading = false;
   let selectedFile = null;
   let selectedFileValid = false;
   let lastStatus = ["dashboard.uploadIdle", {}];
 
+  const renderStatus = () => {
+    const values = { ...lastStatus[1] };
+    if (values.messageKey) values.message = translate(values.messageKey);
+    if (Number.isFinite(values.fileSize)) values.size = formatSize(values.fileSize);
+    uploadStatus.textContent = translate(lastStatus[0], values);
+  };
+
   const setStatus = (key, values = {}, state = "") => {
     lastStatus = [key, values];
-    uploadStatus.textContent = translate(key, values);
+    renderStatus();
     uploadStatus.dataset.state = state;
   };
 
@@ -64,18 +80,19 @@ if (uploadInput && uploadStatus && uploadButton) {
     title.href = `/api/documents/${encodeURIComponent(id)}`;
     title.textContent = filename;
     const details = document.createElement("small");
-    details.textContent = translate("dashboard.uploadedDocumentSize", {
-      size: formatSize(size),
-    });
+    details.dataset.documentSize = String(size);
+    updateDocumentRow(details);
     name.append(title, details);
 
     const state = document.createElement("span");
     state.className = "document-state state-available";
-    state.textContent = translate("dashboard.uploaded");
+    state.dataset.i18n = "dashboard.uploaded";
+    state.textContent = translate(state.dataset.i18n);
     const remove = document.createElement("button");
     remove.className = "document-delete";
     remove.type = "button";
-    remove.textContent = translate("dashboard.deleteDocument");
+    remove.dataset.i18n = "dashboard.deleteDocument";
+    remove.textContent = translate(remove.dataset.i18n);
     remove.addEventListener("click", async () => {
       remove.disabled = true;
       try {
@@ -102,8 +119,27 @@ if (uploadInput && uploadStatus && uploadButton) {
     documentList.replaceChildren();
     const empty = document.createElement("li");
     empty.className = "empty-document-state";
+    empty.dataset.documentEmpty = "true";
     empty.textContent = translate("dashboard.noPrivateDocuments");
     documentList.append(empty);
+  };
+
+  const updateDocumentRow = (element) => {
+    element.textContent = translate("dashboard.uploadedDocumentSize", {
+      size: formatSize(Number(element.dataset.documentSize)),
+    });
+  };
+
+  const updateDocumentTranslations = () => {
+    if (!documentList) return;
+    for (const element of documentList.querySelectorAll("[data-document-size]")) {
+      updateDocumentRow(element);
+    }
+    const empty = documentList.querySelector("[data-document-empty]");
+    if (empty) empty.textContent = translate("dashboard.noPrivateDocuments");
+    for (const element of documentList.querySelectorAll("[data-i18n]")) {
+      element.textContent = translate(element.dataset.i18n);
+    }
   };
 
   const loadDocuments = async () => {
@@ -121,10 +157,7 @@ if (uploadInput && uploadStatus && uploadButton) {
         appendUploadedDocument(document.id, document.filename, document.size);
       }
     } catch {
-      setStatus("dashboard.uploadFailure", {
-        filename: "",
-        message: translate("dashboard.uploadNetworkError"),
-      }, "error");
+      setStatus("dashboard.documentListFailure", {}, "error");
     }
   };
 
@@ -144,7 +177,7 @@ if (uploadInput && uploadStatus && uploadButton) {
     if (!isSupported(file)) {
       setStatus("dashboard.uploadFailure", {
         filename: file.name,
-        message: translate("dashboard.uploadInvalidType"),
+        messageKey: "dashboard.uploadInvalidType",
       }, "error");
       setUploadButton(false);
       return;
@@ -152,7 +185,7 @@ if (uploadInput && uploadStatus && uploadButton) {
     if (file.size > maxUploadSize) {
       setStatus("dashboard.uploadFailure", {
         filename: file.name,
-        message: translate("dashboard.uploadTooLarge"),
+        messageKey: "dashboard.uploadTooLarge",
       }, "error");
       setUploadButton(false);
       return;
@@ -160,7 +193,7 @@ if (uploadInput && uploadStatus && uploadButton) {
 
     setStatus("dashboard.uploadReady", {
       filename: file.name,
-      size: formatSize(file.size),
+      fileSize: file.size,
     }, "ready");
     selectedFileValid = true;
     setUploadButton(false);
@@ -171,7 +204,7 @@ if (uploadInput && uploadStatus && uploadButton) {
     if (selectedFile.size > maxUploadSize) {
       setStatus("dashboard.uploadFailure", {
         filename: selectedFile.name,
-        message: translate("dashboard.uploadTooLarge"),
+        messageKey: "dashboard.uploadTooLarge",
       }, "error");
       return;
     }
@@ -182,6 +215,7 @@ if (uploadInput && uploadStatus && uploadButton) {
 
     const formData = new FormData();
     formData.append("document", selectedFile);
+    let failureMessageKey = "dashboard.uploadNetworkError";
     try {
       const response = await fetch("/api/documents/upload", {
         method: "POST",
@@ -198,23 +232,23 @@ if (uploadInput && uploadStatus && uploadButton) {
         || typeof payload.filename !== "string"
         || !Number.isFinite(payload.size)
       ) {
-        throw new Error(payload.error || translate("dashboard.uploadNetworkError"));
+        failureMessageKey = uploadErrorKeys[payload.error_code]
+          || "dashboard.uploadNetworkError";
+        throw new Error("Upload request failed.");
       }
 
       appendUploadedDocument(payload.id, payload.filename, payload.size);
       setStatus("dashboard.uploadSuccess", {
         filename: payload.filename,
-        size: formatSize(payload.size),
+        fileSize: payload.size,
       }, "success");
       selectedFile = null;
       selectedFileValid = false;
       uploadInput.value = "";
-    } catch (error) {
+    } catch {
       setStatus("dashboard.uploadFailure", {
         filename: selectedFile.name,
-        message: error instanceof Error
-          ? error.message
-          : translate("dashboard.uploadNetworkError"),
+        messageKey: failureMessageKey,
       }, "error");
     } finally {
       uploading = false;
@@ -224,10 +258,11 @@ if (uploadInput && uploadStatus && uploadButton) {
   });
 
   window.addEventListener("lifegraph:languagechange", () => {
-    uploadStatus.textContent = translate(lastStatus[0], lastStatus[1]);
+    renderStatus();
     uploadButton.textContent = uploading
       ? translate("dashboard.uploadingButton")
       : translate("dashboard.confirmUpload");
+    updateDocumentTranslations();
   });
 
   setUploadButton(false);

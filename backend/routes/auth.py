@@ -59,11 +59,23 @@ def _password_error(password):
 
 
 def _render_auth(mode, error=None, status=200, token=None):
+    error_keys = {
+        "Enter a name of 1 to 100 characters.": "auth.errorName",
+        "Enter a valid email address.": "auth.errorEmail",
+        "Use a password with at least 12 characters.": "auth.errorPasswordShort",
+        "Passwords must be 128 characters or fewer.": "auth.errorPasswordLong",
+        "The passwords do not match.": "auth.errorPasswordsMismatch",
+        "An account with that email already exists.": "auth.errorAccountExists",
+        "Account creation is temporarily unavailable.": "auth.errorAccountUnavailable",
+        "Invalid email or password.": "auth.errorInvalidCredentials",
+        "This reset link is invalid or has expired.": "auth.errorResetExpired",
+    }
     return (
         render_template(
             "auth.html",
             mode=mode,
             error=error,
+            error_key=error_keys.get(error),
             reset_token=token,
         ),
         status,

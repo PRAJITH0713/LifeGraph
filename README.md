@@ -15,20 +15,24 @@ LifeGraph is a privacy-first citizen service orchestration starter. It contains 
 Python 3.10 or newer and pip are required. From the repository root:
 
 ```powershell
-python -m venv .venv
+if (-not (Test-Path -LiteralPath .venv)) {
+    python -m venv .venv
+}
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-Copy-Item .env.example .env
+if (-not (Test-Path -LiteralPath .env)) {
+    Copy-Item -LiteralPath .env.example -Destination .env
+}
 ```
 
-Start the server from `backend/`:
+The `.env` copy is optional for local defaults. The guard preserves an existing `.env`; do not replace an existing configuration with `.env.example`. Start the existing app from `backend/` so the example's relative database path resolves to `backend/instance/lifegraph.db`:
 
 ```powershell
-Set-Location backend
-python app.py
+Set-Location D:\LifeGraph\backend
+..\.venv\Scripts\python.exe app.py
 ```
 
-The default local URL is `http://127.0.0.1:5000`. SQLite initializes on startup. The `.env.example` values use local-development defaults; configure production values before deployment.
+The default local URL is `http://127.0.0.1:5000`. Startup initializes or additively migrates the SQLite schema; it does not reset the database. Keep `backend/instance/lifegraph.db` and any existing `.env` in place. The `.env.example` values use local-development defaults.
 
 ## Authentication and private data
 
@@ -36,7 +40,7 @@ Create an account at `/signup`; log in, log out, and request password resets at 
 
 Passwords are hashed with Argon2id. The app uses signed Flask sessions, HttpOnly and SameSite=Lax session cookies, CSRF protection on browser forms and state-changing APIs, and rate limits on signup, login, and reset requests. New accounts require a unique normalized email. A password reset increments an authentication version to invalidate existing sessions.
 
-Set a stable random `LIFEGRAPH_SECRET_KEY` for deployments; without it the app generates a process-local secret intended only for development, and sessions will not survive restarts. Set `LIFEGRAPH_COOKIE_SECURE=true` behind HTTPS. The default limiter backend is `memory://`; configure `LIFEGRAPH_RATE_LIMIT_STORAGE_URI` to shared Redis when running multiple app processes.
+For local development, the app generates a process-local Flask secret when `LIFEGRAPH_SECRET_KEY` is unset; this is not suitable for deployment and sessions will not survive restarts. Before deployment, supply a stable, securely managed `LIFEGRAPH_SECRET_KEY` and set `LIFEGRAPH_COOKIE_SECURE=true` behind HTTPS. No production secret or deployment configuration is included in this repository. The default limiter backend is `memory://`; configure `LIFEGRAPH_RATE_LIMIT_STORAGE_URI` to shared Redis when running multiple app processes.
 
 Password-reset responses do not disclose whether an email exists. Email delivery requires `LIFEGRAPH_MAIL_SERVER`, `LIFEGRAPH_MAIL_PORT` (STARTTLS), `LIFEGRAPH_MAIL_USERNAME`, `LIFEGRAPH_MAIL_PASSWORD`, `LIFEGRAPH_MAIL_SENDER`, and a trusted HTTPS `LIFEGRAPH_PUBLIC_URL`. Until these are configured, the app does not issue a usable reset token; it logs that delivery is unavailable. Email verification is not implemented.
 
@@ -56,9 +60,24 @@ Checklist progress is stored server-side by authenticated user, service, checkli
 
 The Centre Finder is an unavailable-state page, not a functioning search or map. The official e-Sevai portal describes visiting a nearby e-Sevai centre, but LifeGraph has not verified a public centre directory/API for it. The remaining catalogue services belong to separate authorities and may use separate centre networks. A current, approved source and coverage details are required per supported network before adding centre search; no centre names, addresses, coordinates, hours, maps, or directions are fabricated.
 
+## Demo walkthrough and readiness
+
+Use a dedicated demo account and synthetic documents only; do not upload real personal documents. Select the supplied synthetic `lifegraph-download-check.pdf` for the upload demonstration.
+
+1. Log in, then show the dashboard.
+2. Open **Services**, choose a demo service, and open its checklist.
+3. Check a planning reminder or checklist item. Reload the page and confirm the saved state remains.
+4. Return to the dashboard, use the document upload control to select the synthetic PDF, and upload it. Click its filename in **Your Documents** to download it.
+5. Switch the language picker to Tamil and back to English.
+6. Use **Log out** and confirm the private workspace returns to the login screen.
+
+Before a live demo, confirm the intended demo account can log in, the local server responds on port 5000, and the synthetic PDF upload/download works in the presentation browser. All 33 catalogue entries are demo data; their requirement status is `needs_verification`. Tamil service-name and description translations are unverified. Do not present the catalogue as official guidance or rely on its requirements.
+
+External connections are limited to outbound links to official/department portals and optional SMTP password-reset delivery when configured. There is no centre search, map, geocoding, centre-directory API, OCR, document analysis, or document upload to a third party. Password-reset email requires the SMTP variables and trusted HTTPS `LIFEGRAPH_PUBLIC_URL` listed above; it is not configured by default. Verify any service requirements and availability directly with the relevant authority.
+
 ## Services, language, and APIs
 
-The catalogue contains 33 clearly marked demo entries: 16 Tamil Nadu e-Sevai certificate names and 17 “Everyday Government Services” examples. Service links point to department portals; they do not imply every listed task is available through e-Sevai. Requirements remain unverified, so no official document rules are invented. The interface supports English and Tamil; displayed Tamil service-name and description translations are marked unverified.
+The catalogue contains 33 clearly marked demo entries: 16 Tamil Nadu e-Sevai certificate names and 17 “Everyday Government Services” examples. All 33 currently have unverified requirement status. Service links point to department portals; they do not imply every listed task is available through e-Sevai. No official document rules are claimed. The interface supports English and Tamil; displayed Tamil service-name and description translations are marked unverified.
 
 Authenticated catalogue/workflow APIs:
 

@@ -121,7 +121,7 @@ class ServiceCatalogueTests(unittest.TestCase):
             if service["category"] == "Tamil Nadu e-Sevai Certificates":
                 self.assertEqual(
                     service["source_url"],
-                    "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+                    "https://tnesevai.tn.gov.in/Pages/ServiceList.aspx",
                 )
             if service["name"] in supported:
                 self.assertEqual(service["requirements"], supported[service["name"]])
@@ -250,7 +250,7 @@ class ServiceCatalogueTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.get_json()["source_url"],
-            "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+            "https://tnesevai.tn.gov.in/Pages/ServiceList.aspx",
         )
         self.assertEqual(response.get_json()["purpose"], "Existing purpose")
         preserved = self.client.get("/api/services/tn-income-certificate")
@@ -273,7 +273,7 @@ class ServiceCatalogueTests(unittest.TestCase):
     def test_service_and_checklist_routes_validate_ids(self):
         detail = self.client.get("/api/services/tn-residence-certificate")
         self.assertEqual(detail.status_code, 200)
-        self.assertEqual(detail.get_json()["source_url"], "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx")
+        self.assertEqual(detail.get_json()["source_url"], "https://tnesevai.tn.gov.in/Pages/ServiceList.aspx")
 
         checklist = self.client.get("/api/services/tn-residence-certificate/checklist")
         self.assertEqual(checklist.status_code, 200)
@@ -298,7 +298,7 @@ class ServiceCatalogueTests(unittest.TestCase):
         )
         self.assertEqual(
             income_checklist["source_url"],
-            "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+            "https://tnesevai.tn.gov.in/Pages/ServiceList.aspx",
         )
         self.assertEqual(income_checklist["source_title"], "Tamil Nadu e-Sevai Services Offered")
         self.assertEqual(income_checklist["verification_date"], "2026-10-14")
@@ -306,7 +306,7 @@ class ServiceCatalogueTests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/services/not-found").status_code, 404)
         self.assertEqual(self.client.get("/api/services/!!").status_code, 400)
 
-    def test_each_demo_service_has_selectable_detail_and_unverified_checklist(self):
+    def test_each_demo_service_has_selectable_detail_and_correct_checklist_state(self):
         services = self.client.get("/api/services").get_json()["services"]
         verified_services = {
             "tn-income-certificate",

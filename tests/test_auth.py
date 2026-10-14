@@ -446,7 +446,23 @@ class AuthenticationTests(unittest.TestCase):
             headers={"X-CSRFToken": self._csrf(self.client, "/checklist")},
         )
         self.assertEqual(completed.status_code, 200)
+        with get_connection(self.database_path) as connection:
+            connection.execute(
+                """
+                UPDATE services
+                SET source_url = ?
+                WHERE id = ?
+                """,
+                (
+                    "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+                    service_id,
+                ),
+            )
         initialize_database(self.database_path)
+        self.assertEqual(
+            self.client.get(f"/api/services/{service_id}").get_json()["source_url"],
+            "https://tnesevai.tn.gov.in/Pages/ServiceList.aspx",
+        )
         self.assertEqual(
             self.client.get(progress_path).get_json()["requirements"][0],
             True,

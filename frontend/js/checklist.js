@@ -88,6 +88,11 @@ if (serviceRoot || checklistRoot) {
 			? "service.openSource"
 			: "service.openOfficialPortal"
 	);
+	const evidenceValue = (value) => {
+		if (value === "Not verified") return t("service.notVerified");
+		if (value === "Not stated by source") return t("service.notStatedBySource");
+		return value || t("service.notVerified");
+	};
 
 	const renderChecklist = (service, target) => {
 		const savedRequirements = Array(service.requirements.length).fill(false);
@@ -95,11 +100,15 @@ if (serviceRoot || checklistRoot) {
 		let updateRequirementProgress = () => {};
 		let updateReminderProgress = () => {};
 		const requirementsPanel = make("section", "checklist-section");
-		requirementsPanel.append(make("h3", "detail-section-title", t("service.requirementsHeading")));
 		const requirementsStatus = service.requirement_verification_status || service.verification_status;
 		const sourceMetadata = service.checklist_metadata || {};
 		const requirementsVerified = requirementsStatus === "verified"
 			&& service.requirements.length > 0;
+		requirementsPanel.append(make(
+			"h3",
+			"detail-section-title",
+			t(requirementsVerified ? "service.sourceDocumentsHeading" : "service.requirementsHeading")
+		));
 		const statusKey = requirementsVerified
 			? "service.verified"
 			: "service.needsVerification";
@@ -120,13 +129,16 @@ if (serviceRoot || checklistRoot) {
 				})
 			));
 		}
-		requirementsPanel.append(make(
-			"p",
-			"verification-notice",
-			t("service.verifyBeforeApply", {
-				updated: sourceMetadata.source_last_updated || t("service.notVerified"),
-			})
-		));
+		requirementsPanel.append(make("p", "verification-notice", t("service.verifyBeforeApply")));
+		if (sourceMetadata.source_last_updated) {
+			requirementsPanel.append(make(
+				"p",
+				"verification-message",
+				t("service.sourceCurrentness", {
+					updated: sourceMetadata.source_last_updated,
+				})
+			));
+		}
 		if (!requirementsVerified) {
 			requirementsPanel.append(make(
 				"p",
@@ -137,30 +149,42 @@ if (serviceRoot || checklistRoot) {
 			));
 		}
 		if (service.requirements.length) {
-			requirementsPanel.append(make(
-				"p",
-				"verification-message requirement-classification",
-				t("service.requirementClassification", {
-					classification: sourceMetadata.mandatory_optional_classification
-						|| t("service.notVerified"),
-				})
-			));
+			if (sourceMetadata.mandatory_optional_classification) {
+				requirementsPanel.append(make(
+					"p",
+					"verification-message requirement-classification",
+					t("service.requirementClassification", {
+						classification: evidenceValue(
+							sourceMetadata.mandatory_optional_classification
+						),
+					})
+				));
+			}
 			if (window.LifeGraphI18n?.language === "ta") {
 				requirementsPanel.append(make("p", "verification-message", t("service.requirementTranslationNote")));
 			}
 			const progressLabel = make("p", "progress-label");
 			const progress = make("progress", "checklist-progress");
 			progress.max = service.requirements.length;
-			progress.setAttribute("aria-label", t("service.requirementProgressLabel"));
+			progress.setAttribute("aria-label", t(
+				requirementsVerified
+					? "service.sourceDocumentProgressLabel"
+					: "service.requirementProgressLabel"
+			));
 			updateRequirementProgress = () => {
 				const done = service.requirements.reduce(
 					(count, _, index) => count + (savedRequirements[index] ? 1 : 0),
 					0
 				);
-				progressLabel.textContent = t("service.requirementProgress", {
-					done,
-					total: service.requirements.length,
-				});
+				progressLabel.textContent = t(
+					requirementsVerified
+						? "service.sourceDocumentProgress"
+						: "service.requirementProgress",
+					{
+						done,
+						total: service.requirements.length,
+					}
+				);
 				progress.value = done;
 			};
 			requirementsPanel.append(progressLabel, progress);
@@ -207,7 +231,7 @@ if (serviceRoot || checklistRoot) {
 		]) {
 			limitations.append(
 				make("dt", "", t(labelKey)),
-				make("dd", "", value || t("service.notVerified"))
+				make("dd", "", evidenceValue(value))
 			);
 		}
 		requirementsPanel.append(limitations);

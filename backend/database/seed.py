@@ -21,8 +21,9 @@ def seed_services(connection: sqlite3.Connection):
             INSERT OR IGNORE INTO services (
                 id, name, purpose, requirements_json, source_url,
                 verification_status, last_verified, is_demo, category,
-                responsible_authority, requirement_verification_status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+                responsible_authority, requirement_verification_status,
+                checklist_metadata_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
             """,
             (
                 service["id"],
@@ -38,6 +39,7 @@ def seed_services(connection: sqlite3.Connection):
                     "requirement_verification_status",
                     service["verification_status"],
                 ),
+                json.dumps(service.get("checklist_metadata", {})),
             ),
         )
         connection.execute(
@@ -52,6 +54,28 @@ def seed_services(connection: sqlite3.Connection):
                 service["id"],
             ),
         )
+        for service in catalogue["services"]:
+            if not service.get("checklist_metadata"):
+                continue
+            connection.execute(
+                """
+                UPDATE services
+                SET requirements_json = ?, source_url = ?, verification_status = ?,
+                    last_verified = ?, requirement_verification_status = ?,
+                    checklist_metadata_json = ?
+                WHERE id = ? AND requirements_json = '[]'
+                    AND requirement_verification_status = 'needs_verification'
+                """,
+                (
+                    json.dumps(service["requirements"]),
+                    service["source_url"],
+                    service["verification_status"],
+                    service["last_verified"],
+                    service["requirement_verification_status"],
+                    json.dumps(service["checklist_metadata"]),
+                    service["id"],
+                ),
+            )
     connection.execute(
         """
         UPDATE services

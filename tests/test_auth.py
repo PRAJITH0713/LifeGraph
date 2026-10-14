@@ -430,6 +430,43 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(persisted.get_json()["requirements"], [False])
         self.assertEqual(persisted.get_json()["reminders"], [False, True])
 
+    def test_official_checklist_progress_is_preserved_by_database_reinitialization(self):
+        self._signup(self.client, "official-checklist@example.com", "Checklist Owner")
+        service_id = "tn-community-certificate"
+        progress_path = f"/api/checklists/{service_id}"
+        checklist = self.client.get(
+            f"/api/services/{service_id}/checklist"
+        ).get_json()
+        self.assertEqual(checklist["requirement_verification_status"], "verified")
+        self.assertGreater(len(checklist["requirements"]), 0)
+
+        completed = self.client.put(
+            progress_path,
+            json={"kind": "requirement", "index": 0, "checked": True},
+            headers={"X-CSRFToken": self._csrf(self.client, "/checklist")},
+        )
+        self.assertEqual(completed.status_code, 200)
+        initialize_database(self.database_path)
+        self.assertEqual(
+            self.client.get(progress_path).get_json()["requirements"][0],
+            True,
+        )
+
+        self.client.post(
+            "/logout",
+            data={"csrf_token": self._csrf(self.client, "/dashboard")},
+        )
+        login = self._login(
+            self.client,
+            "official-checklist@example.com",
+            "correct horse battery staple",
+        )
+        self.assertEqual(login.status_code, 302)
+        self.assertEqual(
+            self.client.get(progress_path).get_json()["requirements"][0],
+            True,
+        )
+
     def test_password_reset_uses_one_time_email_token_and_revokes_sessions(self):
         self.app.config.update(
             MAIL_SERVER="smtp.example.test",

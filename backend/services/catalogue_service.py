@@ -13,6 +13,11 @@ def _connect(database_path):
 
 def _service_from_row(row):
     requirements = json.loads(row["requirements_json"])
+    checklist_metadata = json.loads(
+        row["checklist_metadata_json"]
+        if "checklist_metadata_json" in row.keys()
+        else "{}"
+    )
     return {
         "id": row["id"],
         "name": row["name"],
@@ -27,6 +32,7 @@ def _service_from_row(row):
         "verification_status": row["requirement_verification_status"],
         "requirement_verification_status": row["requirement_verification_status"],
         "last_verified": row["last_verified"],
+        "checklist_metadata": checklist_metadata,
         "is_demo": bool(row["is_demo"]),
     }
 

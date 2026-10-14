@@ -97,6 +97,7 @@ if (serviceRoot || checklistRoot) {
 		const requirementsPanel = make("section", "checklist-section");
 		requirementsPanel.append(make("h3", "detail-section-title", t("service.requirementsHeading")));
 		const requirementsStatus = service.requirement_verification_status || service.verification_status;
+		const sourceMetadata = service.checklist_metadata || {};
 		const requirementsVerified = requirementsStatus === "verified"
 			&& service.requirements.length > 0;
 		const statusKey = requirementsVerified
@@ -108,6 +109,24 @@ if (serviceRoot || checklistRoot) {
 		instructions.target = "_blank";
 		instructions.rel = "noopener noreferrer";
 		requirementsPanel.append(instructions);
+		if (sourceMetadata.source_title) {
+			requirementsPanel.append(make(
+				"p",
+				"verification-message source-attribution",
+				t("service.checklistSource", {
+					title: sourceMetadata.source_title,
+					updated: sourceMetadata.source_last_updated || t("service.notVerified"),
+					checked: sourceMetadata.verification_date || t("service.notVerified"),
+				})
+			));
+		}
+		requirementsPanel.append(make(
+			"p",
+			"verification-notice",
+			t("service.verifyBeforeApply", {
+				updated: sourceMetadata.source_last_updated || t("service.notVerified"),
+			})
+		));
 		if (!requirementsVerified) {
 			requirementsPanel.append(make(
 				"p",
@@ -118,6 +137,14 @@ if (serviceRoot || checklistRoot) {
 			));
 		}
 		if (service.requirements.length) {
+			requirementsPanel.append(make(
+				"p",
+				"verification-message requirement-classification",
+				t("service.requirementClassification", {
+					classification: sourceMetadata.mandatory_optional_classification
+						|| t("service.notVerified"),
+				})
+			));
 			if (window.LifeGraphI18n?.language === "ta") {
 				requirementsPanel.append(make("p", "verification-message", t("service.requirementTranslationNote")));
 			}
@@ -171,6 +198,19 @@ if (serviceRoot || checklistRoot) {
 		} else {
 			requirementsPanel.append(make("p", "empty-requirements", t("service.noProofItems")));
 		}
+		const limitations = make("dl", "verification-limits");
+		for (const [labelKey, value] of [
+			["service.eligibility", sourceMetadata.eligibility],
+			["service.fees", sourceMetadata.fees],
+			["service.processingTime", sourceMetadata.processing_time],
+			["service.originalsCopies", sourceMetadata.originals_or_photocopies],
+		]) {
+			limitations.append(
+				make("dt", "", t(labelKey)),
+				make("dd", "", value || t("service.notVerified"))
+			);
+		}
+		requirementsPanel.append(limitations);
 		target.append(requirementsPanel);
 
 		const reminderPanel = make("section", "checklist-section reminder-section");

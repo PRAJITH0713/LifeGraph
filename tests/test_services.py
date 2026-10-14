@@ -42,7 +42,7 @@ class ServiceCatalogueTests(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    def test_catalogue_has_unverified_certificate_services(self):
+    def test_catalogue_only_verifies_officially_listed_certificate_documents(self):
         response = self.client.get("/api/services")
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
@@ -85,24 +85,72 @@ class ServiceCatalogueTests(unittest.TestCase):
                 "Vehicle RC Registration and Related Services",
             },
         )
+        supported = {
+            "Income Certificate": [
+                "Applicant Photo",
+                "Any Address Proof",
+                "TIN Number and the Trade",
+                "Details of Land Holdings",
+                "Details of houses owned ward wise",
+                "Family or Smart Card",
+                "Self-Declaration of Applicant",
+                "Salary Certificate(Latest Copy)",
+                "PAN card",
+            ],
+            "Community Certificate": [
+                "Photo",
+                "Any Address Proof",
+                "Community Certificate of Father or Community Certificate of Mother or Community Certificate of Siblings",
+                "Self-Declaration of Applicant",
+                "DNC Certificate",
+            ],
+            "Nativity Certificate": [
+                "Photo",
+                "Any Address Proof",
+                "Birth Certificate",
+                "School Education Certificate(or) Employment Details(or)other proof to prove continuous residence of 5 years",
+                "Self-Declaration of Applicant",
+            ],
+        }
         for service in payload["services"]:
-            self.assertEqual(service["requirements"], [])
-            self.assertEqual(service["verification_status"], "needs_verification")
-            self.assertIsNone(service["last_verified"])
             self.assertTrue(service["is_demo"])
             self.assertTrue(service["category"])
             self.assertTrue(service["description"])
             self.assertTrue(service["responsible_authority"])
             self.assertTrue(service["official_portal_url"].startswith("https://"))
-            self.assertEqual(
-                service["requirement_verification_status"],
-                "needs_verification",
-            )
             if service["category"] == "Tamil Nadu e-Sevai Certificates":
                 self.assertEqual(
                     service["source_url"],
                     "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
                 )
+            if service["name"] in supported:
+                self.assertEqual(service["requirements"], supported[service["name"]])
+                self.assertEqual(service["verification_status"], "verified")
+                self.assertEqual(service["last_verified"], "2026-10-14")
+                self.assertEqual(
+                    service["checklist_metadata"]["source_title"],
+                    "Tamil Nadu e-Sevai Services Offered",
+                )
+                self.assertEqual(
+                    service["checklist_metadata"]["source_last_updated"],
+                    "10/04/2023",
+                )
+                self.assertEqual(
+                    service["checklist_metadata"]["mandatory_optional_classification"],
+                    "Not stated by source",
+                )
+                for field in (
+                    "eligibility",
+                    "fees",
+                    "processing_time",
+                    "originals_or_photocopies",
+                ):
+                    self.assertEqual(service["checklist_metadata"][field], "Not verified")
+            else:
+                self.assertEqual(service["requirements"], [])
+                self.assertEqual(service["verification_status"], "needs_verification")
+                self.assertIsNone(service["last_verified"])
+                self.assertEqual(service["checklist_metadata"], {})
 
     def test_search_is_case_insensitive_and_bounded(self):
         response = self.client.get("/api/services?q=income")
@@ -231,21 +279,58 @@ class ServiceCatalogueTests(unittest.TestCase):
         self.assertEqual(checklist.status_code, 200)
         self.assertEqual(checklist.get_json()["requirements"], [])
         self.assertIn("Needs verification", checklist.get_json()["message"])
+        income_checklist = self.client.get(
+            "/api/services/tn-income-certificate/checklist"
+        ).get_json()
+        self.assertEqual(
+            income_checklist["requirements"],
+            [
+                "Applicant Photo",
+                "Any Address Proof",
+                "TIN Number and the Trade",
+                "Details of Land Holdings",
+                "Details of houses owned ward wise",
+                "Family or Smart Card",
+                "Self-Declaration of Applicant",
+                "Salary Certificate(Latest Copy)",
+                "PAN card",
+            ],
+        )
+        self.assertEqual(
+            income_checklist["source_url"],
+            "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
+        )
+        self.assertEqual(income_checklist["source_title"], "Tamil Nadu e-Sevai Services Offered")
+        self.assertEqual(income_checklist["verification_date"], "2026-10-14")
+        self.assertIn("Verify with the official authority", income_checklist["message"])
         self.assertEqual(self.client.get("/api/services/not-found").status_code, 404)
         self.assertEqual(self.client.get("/api/services/!!").status_code, 400)
 
     def test_each_demo_service_has_selectable_detail_and_unverified_checklist(self):
         services = self.client.get("/api/services").get_json()["services"]
+        verified_services = {
+            "tn-income-certificate",
+            "tn-community-certificate",
+            "tn-nativity-certificate",
+        }
         for service in services:
             with self.subTest(service=service["id"]):
                 detail = self.client.get(f"/api/services/{service['id']}")
                 checklist = self.client.get(f"/api/services/{service['id']}/checklist")
                 self.assertEqual(detail.status_code, 200)
-                self.assertEqual(detail.get_json()["verification_status"], "needs_verification")
-                self.assertEqual(detail.get_json()["requirements"], [])
                 self.assertEqual(checklist.status_code, 200)
                 self.assertEqual(checklist.get_json()["service_id"], service["id"])
-                self.assertEqual(checklist.get_json()["requirements"], [])
+                if service["id"] in verified_services:
+                    self.assertEqual(detail.get_json()["verification_status"], "verified")
+                    self.assertTrue(detail.get_json()["requirements"])
+                    self.assertEqual(
+                        checklist.get_json()["requirement_verification_status"],
+                        "verified",
+                    )
+                else:
+                    self.assertEqual(detail.get_json()["verification_status"], "needs_verification")
+                    self.assertEqual(detail.get_json()["requirements"], [])
+                    self.assertEqual(checklist.get_json()["requirements"], [])
                 self.assertEqual(
                     checklist.get_json()["official_portal_url"],
                     service["official_portal_url"],

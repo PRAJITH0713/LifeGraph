@@ -75,7 +75,8 @@ def initialize_database(database_path):
                 is_demo INTEGER NOT NULL DEFAULT 1,
                 category TEXT NOT NULL DEFAULT 'Tamil Nadu e-Sevai Certificates',
                 responsible_authority TEXT NOT NULL DEFAULT '',
-                requirement_verification_status TEXT NOT NULL DEFAULT 'needs_verification'
+                requirement_verification_status TEXT NOT NULL DEFAULT 'needs_verification',
+                checklist_metadata_json TEXT NOT NULL DEFAULT '{}'
             )
             """
         )
@@ -140,6 +141,13 @@ def initialize_database(database_path):
                 """
                 ALTER TABLE services
                 ADD COLUMN requirement_verification_status TEXT NOT NULL DEFAULT 'needs_verification'
+                """
+            )
+        if "checklist_metadata_json" not in columns:
+            connection.execute(
+                """
+                ALTER TABLE services
+                ADD COLUMN checklist_metadata_json TEXT NOT NULL DEFAULT '{}'
                 """
             )
             connection.execute(

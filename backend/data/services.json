@@ -1,7 +1,7 @@
 {
-  "data_status": "Tamil Nadu e-Sevai certificate names are listed in its official directory; Everyday Government Services use separate official portals. Proof requirements have not been verified.",
+  "data_status": "Three e-Sevai Revenue Administration document lists were transcribed from the official Services Offered directory. The source page was last updated 10/04/2023; confirm current requirements before applying. Everyday Government Services use separate official portals.",
   "catalogue_source": "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
-  "catalogue_checked_on": "2026-10-05",
+  "catalogue_checked_on": "2026-10-14",
   "region": "Tamil Nadu",
   "services": [
     {
@@ -9,6 +9,7 @@
       "category": "Tamil Nadu e-Sevai Certificates",
       "responsible_authority": "Tamil Nadu Revenue Department; confirm the issuing authority for this certificate",
       "requirement_verification_status": "needs_verification",
+      "checklist_metadata": {},
       "name": "Residence Certificate",
       "purpose": "DEMO description: associated with residence-related applications; confirm the certificate's scope with the issuing authority.",
       "requirements": [],
@@ -20,37 +21,92 @@
       "id": "tn-income-certificate",
       "category": "Tamil Nadu e-Sevai Certificates",
       "responsible_authority": "Tamil Nadu Revenue Department; confirm the issuing authority for this certificate",
-      "requirement_verification_status": "needs_verification",
+      "requirement_verification_status": "verified",
       "name": "Income Certificate",
       "purpose": "DEMO description: associated with income-related applications; confirm the certificate's scope with the issuing authority.",
-      "requirements": [],
+      "requirements": [
+        "Applicant Photo",
+        "Any Address Proof",
+        "TIN Number and the Trade",
+        "Details of Land Holdings",
+        "Details of houses owned ward wise",
+        "Family or Smart Card",
+        "Self-Declaration of Applicant",
+        "Salary Certificate(Latest Copy)",
+        "PAN card"
+      ],
       "source_url": "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
-      "verification_status": "needs_verification",
-      "last_verified": null
+      "verification_status": "verified",
+      "last_verified": "2026-10-14",
+      "checklist_metadata": {
+        "source_title": "Tamil Nadu e-Sevai Services Offered",
+        "source_last_updated": "10/04/2023",
+        "verification_date": "2026-10-14",
+        "mandatory_optional_classification": "Not stated by source",
+        "eligibility": "Not verified",
+        "fees": "Not verified",
+        "processing_time": "Not verified",
+        "originals_or_photocopies": "Not verified",
+        "currentness_note": "The source page was last updated on 10/04/2023. Current requirements must be confirmed with the official authority."
+      }
     },
     {
       "id": "tn-community-certificate",
       "category": "Tamil Nadu e-Sevai Certificates",
       "responsible_authority": "Tamil Nadu Revenue Department; confirm the issuing authority for this certificate",
-      "requirement_verification_status": "needs_verification",
+      "requirement_verification_status": "verified",
       "name": "Community Certificate",
       "purpose": "DEMO catalogue example only. Confirm that this service is currently offered and verify its scope and application details with the issuing authority.",
-      "requirements": [],
+      "requirements": [
+        "Photo",
+        "Any Address Proof",
+        "Community Certificate of Father or Community Certificate of Mother or Community Certificate of Siblings",
+        "Self-Declaration of Applicant",
+        "DNC Certificate"
+      ],
       "source_url": "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
-      "verification_status": "needs_verification",
-      "last_verified": null
+      "verification_status": "verified",
+      "last_verified": "2026-10-14",
+      "checklist_metadata": {
+        "source_title": "Tamil Nadu e-Sevai Services Offered",
+        "source_last_updated": "10/04/2023",
+        "verification_date": "2026-10-14",
+        "mandatory_optional_classification": "Not stated by source",
+        "eligibility": "Not verified",
+        "fees": "Not verified",
+        "processing_time": "Not verified",
+        "originals_or_photocopies": "Not verified",
+        "currentness_note": "The source page was last updated on 10/04/2023. Current requirements must be confirmed with the official authority."
+      }
     },
     {
       "id": "tn-nativity-certificate",
       "category": "Tamil Nadu e-Sevai Certificates",
       "responsible_authority": "Tamil Nadu Revenue Department; confirm the issuing authority for this certificate",
-      "requirement_verification_status": "needs_verification",
+      "requirement_verification_status": "verified",
       "name": "Nativity Certificate",
       "purpose": "DEMO catalogue example only. Confirm that this service is currently offered and verify its scope and application details with the issuing authority.",
-      "requirements": [],
+      "requirements": [
+        "Photo",
+        "Any Address Proof",
+        "Birth Certificate",
+        "School Education Certificate(or) Employment Details(or)other proof to prove continuous residence of 5 years",
+        "Self-Declaration of Applicant"
+      ],
       "source_url": "https://tnesevai.tn.gov.in/Pages/EsevaiServiceList.aspx",
-      "verification_status": "needs_verification",
-      "last_verified": null
+      "verification_status": "verified",
+      "last_verified": "2026-10-14",
+      "checklist_metadata": {
+        "source_title": "Tamil Nadu e-Sevai Services Offered",
+        "source_last_updated": "10/04/2023",
+        "verification_date": "2026-10-14",
+        "mandatory_optional_classification": "Not stated by source",
+        "eligibility": "Not verified",
+        "fees": "Not verified",
+        "processing_time": "Not verified",
+        "originals_or_photocopies": "Not verified",
+        "currentness_note": "The source page was last updated on 10/04/2023. Current requirements must be confirmed with the official authority."
+      }
     },
     {
       "id": "tn-first-graduate-certificate",

@@ -345,6 +345,19 @@ if (serviceRoot || checklistRoot) {
 				const button = make("button", "service-option");
 				button.type = "button";
 				button.setAttribute("aria-pressed", String(selectedService?.id === service.id));
+				const icon = make("span", "service-option-icon");
+				icon.setAttribute("aria-hidden", "true");
+				const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+				svg.setAttribute("viewBox", "0 0 24 24");
+				const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+				if (category === "Tamil Nadu e-Sevai Certificates") {
+					path.setAttribute("d", "M7 3.75h7l4 4V20H7zM14 4v4h4M10 12h5M10 15h5");
+				} else {
+					path.setAttribute("d", "M4 20h16M6 20V9l6-4 6 4v11M9 12h2m2 0h2m-6 4h2m2 0h2");
+				}
+				svg.append(path);
+				icon.append(svg);
+				button.append(icon);
 				button.append(make("strong", "", window.LifeGraphI18n?.serviceName(service) || service.name));
 				button.append(make("small", "", t(
 					(service.requirement_verification_status || service.verification_status) === "verified"
